@@ -3,7 +3,8 @@ import java.util.*;
 import java.math.BigInteger;  
 import java.nio.charset.StandardCharsets; 
 import java.security.MessageDigest;  
-import java.security.NoSuchAlgorithmException;  
+import java.security.NoSuchAlgorithmException;
+import java.lang.Integer;  
 
 
 //Sources Cited:
@@ -274,12 +275,12 @@ public class Tree {
                 q.addFirst((InnerNode)curr.getRightChild());
                 String edgeLabel = findMin((InnerNode)curr.getRightChild());
                 //System.out.println(edgeLabel);
-                curr.setLeftLabel(edgeLabel);
+                curr.setRightLabel(edgeLabel);
                 //System.out.println("InnerNode");
 
             } else {
                 String edgeLabel = ((LeafNode)curr.getRightChild()).getString();
-                curr.setLeftLabel(edgeLabel);
+                curr.setRightLabel(edgeLabel);
                 //System.out.println(edgeLabel);
                 //System.out.println("TreeNode");
 
@@ -291,36 +292,70 @@ public class Tree {
 
         }
 
-    public String printTree(Node root){
-        
-        LinkedList<InnerNode> q = new LinkedList<>();
-        int counter = 0;
-        if (node == null) {
-            return;
-        }
-        
-        q.add(node);
-        while (!q.isEmpty()) {
-            counter++;
-            InnerNode curr = (InnerNode)q.pollLast();
-            if(!curr.getLeftChild().isLeafNode()){
-                
+    public String printTree(InnerNode node, String fileName){
+        try {
 
-            } else {
-                
-
+            String[] nameParts = fileName.split("\\.");
+            for(String s: nameParts){
+                System.out.println(s);
             }
-            if(!curr.getRightChild().isLeafNode()){
-                
-
-            } else {
-                
-                
-
-
+            fileName = nameParts[0] + ".out.txt";
+            fileName = fileName.replace("/", "");
+            System.out.println(fileName);
+            PrintWriter out = new PrintWriter(new FileWriter(fileName, true), true);
+        
+            LinkedList<InnerNode> q = new LinkedList<>();
+            ArrayList<LeafNode> q_leafs = new ArrayList<>();
+            int p = 0;
+            if (node == null) {
+                return " ";
             }
             
+            q.add(node);
+            while (!q.isEmpty()) {
+                p++;
+                InnerNode curr = (InnerNode)q.pollLast();
+                if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                    InnerNode leftChild = (InnerNode)curr.getLeftChild();
+                    InnerNode rightChild = (InnerNode)curr.getRightChild();
+                    String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    //System.out.println(printStr);
+                    out.write(printStr);
+                    q.addFirst((InnerNode)curr.getLeftChild());
+                    q.addFirst((InnerNode)curr.getRightChild());
+                    
+
+                } else {
+                    LeafNode leftChild = (LeafNode)curr.getLeftChild();
+                    LeafNode rightChild = (LeafNode)curr.getRightChild();
+                    String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    //System.out.println(printStr);
+                    out.write(printStr);
+                    q_leafs.add((LeafNode)curr.getLeftChild());
+                    q_leafs.add((LeafNode)curr.getRightChild());
+
+                }
+                
+                
+            }
+
+            for(LeafNode curr: q_leafs){
+                p++;
+                String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
+
+                //System.out.println(printStr);
+                out.write(printStr);
+            }
+            out.close();
+
+            return " ";
         }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return " ";
+        
     }
 
     public static void main(String[] args) {
@@ -352,6 +387,7 @@ public class Tree {
             InnerNode root = obj.generateMerkleTree(strings);
             System.out.println("Root HASH: " + root.getSHAString());
             obj.generatePatriciaEdges(root);
+            obj.printTree(root, fileName);
 
         }
         catch(Exception e)  
@@ -359,9 +395,6 @@ public class Tree {
             e.printStackTrace();  
         }  
 
-        for(String s: strings){
-            System.out.println(s);
-        }
      
     }
 }
