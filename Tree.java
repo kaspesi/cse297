@@ -227,6 +227,7 @@ public class Tree {
         return q.get(0);
     }
 
+    //Finds the maximum string value in a node subtree
     public String findMax(InnerNode node){
 
         while(!node.getRightChild().isLeafNode()){
@@ -236,6 +237,7 @@ public class Tree {
         return retStr;
     }
 
+    //Finds the minimum string value in a node subtree
     public String findMin(InnerNode node){
 
         while(!node.getLeftChild().isLeafNode()){
@@ -245,9 +247,11 @@ public class Tree {
         return retStr;
     }
 
-
+    //Generates edges with range x.leftChildLabel = to maximum of left child subarray
+    //and x.rightChildLabel = minimum of right child subarray 
     public void generatePatriciaEdges(InnerNode node){
         
+        //Queue for BFS itteration of tree
         LinkedList<InnerNode> q = new LinkedList<>();
         if (node == null) {
             return;
@@ -260,29 +264,21 @@ public class Tree {
             if(!curr.getLeftChild().isLeafNode()){
                 q.addFirst((InnerNode)curr.getLeftChild());
                 String edgeLabel = findMax((InnerNode)curr.getLeftChild());
-                //System.out.println(edgeLabel);
                 curr.setLeftLabel(edgeLabel);
-                //System.out.println("InnerNode");
 
             } else {
                 String edgeLabel = ((LeafNode)curr.getLeftChild()).getString();
-                //System.out.println(edgeLabel);
                 curr.setLeftLabel(edgeLabel);
-                //System.out.println("TreeNode:");
 
             }
             if(!curr.getRightChild().isLeafNode()){
                 q.addFirst((InnerNode)curr.getRightChild());
                 String edgeLabel = findMin((InnerNode)curr.getRightChild());
-                //System.out.println(edgeLabel);
                 curr.setRightLabel(edgeLabel);
-                //System.out.println("InnerNode");
 
             } else {
                 String edgeLabel = ((LeafNode)curr.getRightChild()).getString();
                 curr.setRightLabel(edgeLabel);
-                //System.out.println(edgeLabel);
-                //System.out.println("TreeNode");
 
 
             }
@@ -292,16 +288,18 @@ public class Tree {
 
         }
 
+    //Traverses search itteratively with BFS to get nodes in print order 
+    //If statements in order to cast InnerNode to LeafNode 
     public String printTree(InnerNode node, String fileName){
         try {
 
+            //Generate output file name
             String[] nameParts = fileName.split("\\.");
             for(String s: nameParts){
                 System.out.println(s);
             }
             fileName = nameParts[0] + ".out.txt";
             fileName = fileName.replace("/", "");
-            System.out.println(fileName);
             PrintWriter out = new PrintWriter(new FileWriter(fileName, true), true);
         
             LinkedList<InnerNode> q = new LinkedList<>();
@@ -319,7 +317,7 @@ public class Tree {
                     InnerNode leftChild = (InnerNode)curr.getLeftChild();
                     InnerNode rightChild = (InnerNode)curr.getRightChild();
                     String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                    //System.out.println(printStr);
+                    System.out.println(printStr);
                     out.write(printStr);
                     q.addFirst((InnerNode)curr.getLeftChild());
                     q.addFirst((InnerNode)curr.getRightChild());
@@ -329,7 +327,7 @@ public class Tree {
                     LeafNode leftChild = (LeafNode)curr.getLeftChild();
                     LeafNode rightChild = (LeafNode)curr.getRightChild();
                     String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                    //System.out.println(printStr);
+                    System.out.println(printStr);
                     out.write(printStr);
                     q_leafs.add((LeafNode)curr.getLeftChild());
                     q_leafs.add((LeafNode)curr.getRightChild());
@@ -343,7 +341,7 @@ public class Tree {
                 p++;
                 String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
 
-                //System.out.println(printStr);
+                System.out.println(printStr);
                 out.write(printStr);
             }
             out.close();
@@ -369,6 +367,8 @@ public class Tree {
         Tree obj = new Tree();
 
         try{
+
+            //Get user input 
             Scanner myObj = new Scanner(System.in); 
             System.out.println("Please enter input file name");
             fileName = formatFileName(myObj.nextLine()); 
