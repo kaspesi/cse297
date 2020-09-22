@@ -226,10 +226,24 @@ public class Tree {
         return q.get(0);
     }
 
-    public Node findMax(Node node){
+    public String findMax(InnerNode node){
 
-        return null;
+        while(!node.getRightChild().isLeafNode()){
+            node = (InnerNode)node.getRightChild();
+        }
+        String retStr = ((LeafNode)node.getRightChild()).getString();
+        return retStr;
     }
+
+    public String findMin(InnerNode node){
+
+        while(!node.getLeftChild().isLeafNode()){
+            node = (InnerNode)node.getLeftChild();
+        }
+        String retStr = ((LeafNode)node.getLeftChild()).getString();
+        return retStr;
+    }
+
 
     public void generatePatriciaEdges(InnerNode node){
         
@@ -242,20 +256,34 @@ public class Tree {
         while (!q.isEmpty()) {
 
             InnerNode curr = (InnerNode)q.pollLast();
-            //System.out.println(curr.isLeafNode());
-            if(!curr.getRightChild().isLeafNode()){
+            if(!curr.getLeftChild().isLeafNode()){
                 q.addFirst((InnerNode)curr.getLeftChild());
-                System.out.println("InnerNOde");
+                String edgeLabel = findMax((InnerNode)curr.getLeftChild());
+                //System.out.println(edgeLabel);
+                curr.setLeftLabel(edgeLabel);
+                //System.out.println("InnerNode");
 
             } else {
-                System.out.println("LeafNode");
+                String edgeLabel = ((LeafNode)curr.getLeftChild()).getString();
+                //System.out.println(edgeLabel);
+                curr.setLeftLabel(edgeLabel);
+                //System.out.println("TreeNode:");
+
             }
             if(!curr.getRightChild().isLeafNode()){
-                q.addFirst((InnerNode)curr.getLeftChild());
-                System.out.println("InnerNode");
+                q.addFirst((InnerNode)curr.getRightChild());
+                String edgeLabel = findMin((InnerNode)curr.getRightChild());
+                //System.out.println(edgeLabel);
+                curr.setLeftLabel(edgeLabel);
+                //System.out.println("InnerNode");
 
             } else {
-                System.out.println("LeafNode");
+                String edgeLabel = ((LeafNode)curr.getRightChild()).getString();
+                curr.setLeftLabel(edgeLabel);
+                //System.out.println(edgeLabel);
+                //System.out.println("TreeNode");
+
+
             }
             
         }
@@ -265,7 +293,33 @@ public class Tree {
 
     public String printTree(Node root){
         
-        return "";
+        LinkedList<InnerNode> q = new LinkedList<>();
+        if (node == null) {
+            return;
+        }
+
+        q.add(node);
+        while (!q.isEmpty()) {
+
+            InnerNode curr = (InnerNode)q.pollLast();
+            if(!curr.getLeftChild().isLeafNode()){
+                
+
+            } else {
+                
+
+            }
+            if(!curr.getRightChild().isLeafNode()){
+                
+
+            } else {
+                
+                
+
+
+            }
+            
+        }
     }
 
     public static void main(String[] args) {
