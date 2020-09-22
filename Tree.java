@@ -376,7 +376,6 @@ public class Tree {
             file=new File(currentDirectory + fileName);   
             fis=new FileInputStream(file);    
             reader = new BufferedReader(new InputStreamReader(fis));
-            System.out.println("file content: ");  
             
             String line = reader.readLine();
             while(line != null){
@@ -385,7 +384,6 @@ public class Tree {
             }   
             Collections.sort(strings);
             InnerNode root = obj.generateMerkleTree(strings);
-            System.out.println("Root HASH: " + root.getSHAString());
             obj.generatePatriciaEdges(root);
             obj.printTree(root, fileName);
 
