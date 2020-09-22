@@ -22,6 +22,11 @@ public class Tree {
         private Node rightChild;
         private String rightChildLabel;
         private byte[] SHA256;
+        private boolean isLeaf;
+
+        public boolean isLeafNode(){
+            return this.isLeaf;
+        }
 
         public void setLeftLabel(String leftLabel){
             this.leftChildLabel = leftLabel;
@@ -64,11 +69,18 @@ public class Tree {
     class LeafNode extends Node {
         
         private String str;
-        private byte[] SHA256;
+        private byte[] SHA256;        
+        private boolean isLeaf;
         
         public LeafNode(String str) throws NoSuchAlgorithmException{
             this.str = str;
             this.SHA256 = getSHA(str);
+            this.isLeaf = true;
+        }
+
+
+        public boolean isLeafNode(){
+            return this.isLeaf;
         }
         
 
@@ -93,13 +105,18 @@ public class Tree {
         private Node rightChild;
         private String rightChildLabel;
         private byte[] SHA256;
+        private boolean isLeaf;
 
+        public boolean isLeafNode(){
+            return this.isLeaf;
+        }
 
         public InnerNode(Node leftChild, Node rightChild) throws NoSuchAlgorithmException{
             this.leftChild = leftChild;
             // this.leftChildLabel = leftChild.getSHAString();
             this.rightChild = rightChild;
             // this.rightChildLabel = rightChild.getSHAString();
+            this.isLeaf = false;
             this.SHA256 = getSHAChildren(leftChild, rightChild);
         }
 
@@ -214,10 +231,37 @@ public class Tree {
         return null;
     }
 
-    public void generatePatriciaEdges(Node node){
-        //TO DO 
+    public void generatePatriciaEdges(InnerNode node){
+        
+        LinkedList<InnerNode> q = new LinkedList<>();
+        if (node == null) {
+            return;
+        }
 
-    }
+        q.add(node);
+        while (!q.isEmpty()) {
+
+            InnerNode curr = (InnerNode)q.pollLast();
+            //System.out.println(curr.isLeafNode());
+            if(!curr.getRightChild().isLeafNode()){
+                q.addFirst((InnerNode)curr.getLeftChild());
+                System.out.println("InnerNOde");
+
+            } else {
+                System.out.println("LeafNode");
+            }
+            if(!curr.getRightChild().isLeafNode()){
+                q.addFirst((InnerNode)curr.getLeftChild());
+                System.out.println("InnerNode");
+
+            } else {
+                System.out.println("LeafNode");
+            }
+            
+        }
+        
+
+        }
 
     public String printTree(Node root){
         
@@ -250,7 +294,7 @@ public class Tree {
                 line = reader.readLine();
             }   
             Collections.sort(strings);
-            Node root = obj.generateMerkleTree(strings);
+            InnerNode root = obj.generateMerkleTree(strings);
             System.out.println("Root HASH: " + root.getSHAString());
             obj.generatePatriciaEdges(root);
 
