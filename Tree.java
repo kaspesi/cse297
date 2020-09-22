@@ -294,13 +294,14 @@ public class Tree {
     public String printTree(Node root){
         
         LinkedList<InnerNode> q = new LinkedList<>();
+        int counter = 0;
         if (node == null) {
             return;
         }
-
+        
         q.add(node);
         while (!q.isEmpty()) {
-
+            counter++;
             InnerNode curr = (InnerNode)q.pollLast();
             if(!curr.getLeftChild().isLeafNode()){
                 
