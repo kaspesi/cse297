@@ -17,8 +17,27 @@ public class Tree {
 
     class Node {
 
-        private String str;
+        private Node leftChild;
+        private String leftChildLabel;
+        private Node rightChild;
+        private String rightChildLabel;
         private byte[] SHA256;
+
+        public void setLeftLabel(String leftLabel){
+            this.leftChildLabel = leftLabel;
+        }
+
+        public void setRightLabel(String rightLabel){
+            this.rightChildLabel = rightLabel;
+        }
+
+        private Node getRightChild(){
+            return this.rightChild;
+        }
+        private Node getLeftChild(){
+            return this.rightChild;
+        }
+
         public String getSHAString(){
             return toHexString(SHA256);
         };
@@ -78,10 +97,18 @@ public class Tree {
 
         public InnerNode(Node leftChild, Node rightChild) throws NoSuchAlgorithmException{
             this.leftChild = leftChild;
-            this.leftChildLabel = leftChild.getSHAString();
+            // this.leftChildLabel = leftChild.getSHAString();
             this.rightChild = rightChild;
-            this.rightChildLabel = rightChild.getSHAString();
+            // this.rightChildLabel = rightChild.getSHAString();
             this.SHA256 = getSHAChildren(leftChild, rightChild);
+        }
+
+        public void setLeftLabel(String leftLabel){
+            this.leftChildLabel = leftLabel;
+        }
+
+        public void setRightLabel(String rightLabel){
+            this.rightChildLabel = rightLabel;
         }
 
         public byte[] getSHA(){
@@ -141,9 +168,9 @@ public class Tree {
     }
 
 
-    public Node generateMerkleTree(ArrayList<String> keys) throws NoSuchAlgorithmException{
+    public InnerNode generateMerkleTree(ArrayList<String> keys) throws NoSuchAlgorithmException{
         
-        LinkedList<Node> q = new LinkedList<>();
+        LinkedList<InnerNode> q = new LinkedList<>();
         boolean oddLeafs = false;
         int n = keys.size();
         if(n%2 != 0){
@@ -151,12 +178,13 @@ public class Tree {
             System.out.println("Odd keys");
         }
         int i = 0;
+        //Generate first level of inner nodes from the leaf nodes
         for(i = 0; i < n-1; i+=2){
             LeafNode l = new LeafNode(keys.get(i));
             LeafNode r = new LeafNode(keys.get(i+1));
             InnerNode parent = new InnerNode(l, r);
             q.addLast(parent);
-        }
+        } //Case with odd leaf nodes, we use the last one twice
         if(oddLeafs){
             LeafNode l = new LeafNode(keys.get(n-1));
             LeafNode r = new LeafNode(keys.get(n-1));
@@ -166,9 +194,10 @@ public class Tree {
 
         System.out.println("Queue is now of length: " + q.size());
 
+        //Continue taking children and adding parent at higher level until we reach a single root node
         while(q.size() != 1){
 
-            LinkedList<Node> tempList = new LinkedList<>();
+            LinkedList<InnerNode> tempList = new LinkedList<>();
             for(i = 0; i < q.size()-1; i+=2){
                 tempList.add(new InnerNode(q.get(i), q.get(i+1)));
             }
@@ -176,11 +205,23 @@ public class Tree {
         }
 
         System.out.println("Queue is now of length: " + q.size());
+        //Return root node
+        return q.get(0);
+    }
 
-
-
+    public Node findMax(Node node){
 
         return null;
+    }
+
+    public void generatePatriciaEdges(Node node){
+        //TO DO 
+
+    }
+
+    public String printTree(Node root){
+        
+        return "";
     }
 
     public static void main(String[] args) {
@@ -209,7 +250,9 @@ public class Tree {
                 line = reader.readLine();
             }   
             Collections.sort(strings);
-            obj.generateMerkleTree(strings);
+            Node root = obj.generateMerkleTree(strings);
+            System.out.println("Root HASH: " + root.getSHAString());
+            obj.generatePatriciaEdges(root);
 
         }
         catch(Exception e)  
