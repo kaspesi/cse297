@@ -1,2 +1,1 @@
-java Tree;
-javac -d . Tree.java
+java cse297.Tree
