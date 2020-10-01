@@ -21,18 +21,26 @@ public class Block{
     private int timeStamp;
     private byte[] target;
     private int nonce;
+    private InnerNode root; 
+    private fileName; 
     
-    public Block (String prevHash, String rootHash, byte[] target, int nonce) {
+    public Block (String prevHash, String rootHash, byte[] target, int nonce, String fileName) throws NoSuchAlgorithmException {
         this.prevHash = prevHash;
         this.rootHash = rootHash;
+        this.fileName = fileName;
         this.target = target;
         this.nonce = nonce;
         long time=System.currentTimeMillis()/1000;
         this.timeStamp = (int)time;
+        Tree mTree = new Tree(fileName);
+        this.root = mTree.getRoot();
+        this.mineBlock();
     }
 
+    public Block() {}
+
     
-    public boolean mineBlock(Block block) throws NoSuchAlgorithmException{
+    public boolean mineBlock() throws NoSuchAlgorithmException{
         Random rand = new Random();
         nonce = rand.nextInt();
         String byteString = nonce + rootHash;
@@ -41,11 +49,14 @@ public class Block{
         BigInteger guessNumber = new BigInteger(guess);
         BigInteger targetNumber = new BigInteger(target);
         while(guessNumber.compareTo(targetNumber) == 1){ 
-            nonce = rand.nextInt();
+            this.nonce = rand.nextInt();
             byteString = nonce + rootHash;
             guess = getSHA(byteString); 
+            guessNumber = new BigInteger(guess);
             System.out.println("Mining Attempt");
+            System.out.println("Guess: " + guessNumber.toString());
         } 
+        System.out.println("Target" + targetNumber.toString());
         return true;
     }
     
@@ -54,10 +65,6 @@ public class Block{
     {  
         // Static getInstance method is called with hashing SHA  
         MessageDigest md = MessageDigest.getInstance("SHA-256");  
-  
-        // digest() method called  
-        // to calculate message digest of an input  
-        // and return array of byte 
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
@@ -76,7 +83,7 @@ public class Block{
         return " ";
     }
     public String[] parseFileNames(String fileSequence) {
-        String[] fileNames = fileSequence.split("\\.");
+        String[] fileNames = fileSequence.split(" ");
         return fileNames;
     }
 
@@ -97,7 +104,7 @@ public class Block{
             e.printStackTrace();
         }
         Integer zero = new Integer(0);
-        Block b = new Block(zero.toString(), zero.toString(), firstTarget, 10);
+        Block b = new Block();
         FileInputStream fis = null;
         BufferedReader reader = null;
         File file = null;
@@ -109,9 +116,9 @@ public class Block{
             Scanner myObj = new Scanner(System.in);
             System.out.println("Please enter file sequence");
             fileNames = b.parseFileNames(myObj.nextLine());
-            blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10));
+            if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
-
+                blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[i]));
             }
            
         } catch(Exception e){
