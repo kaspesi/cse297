@@ -27,9 +27,6 @@ public class Block{
             Scanner myObj = new Scanner(System.in); 
             System.out.println("Please enter the sequence of file names");
             fileNamesInput = myObj.nextLine(); 
-            
-
-
 
 
 
