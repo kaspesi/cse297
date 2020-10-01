@@ -55,7 +55,8 @@ public class Block{
         } catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
+    }
+    
     public String[] parseFileNames(String fileSequence) {
         String[] fileNames = fileSequence.split("\\.");
         return fileNames;
