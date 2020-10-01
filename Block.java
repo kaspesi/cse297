@@ -55,9 +55,30 @@ public class Block{
         } catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
+    public String[] parseFileNames(String fileSequence) {
+        String[] fileNames = fileSequence.split("\\.");
+        return fileNames;
     }
 
     public static void main(String [] args){
-        
+        Block b = new Block();  
+        FileInputStream fis = null;
+        BufferedReader reader = null;
+        File file = null;
+        String currentDirectory = null;
+        String[] fileNames;
+
+
+
+        try{
+            Scanner myObj = new Scanner(System.in); 
+            System.out.println("Please enter file sequence");
+            fileNames = b.parseFileNames(myObj.nextLine()); 
+           
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+            
     }
 }
