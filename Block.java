@@ -22,30 +22,31 @@ public class Block{
     private byte[] target;
     private int nonce;
     
-    public Block (String prevHash, String rootHash, int timeStamp, byte[] target, int nonce) {
+    public Block (String prevHash, String rootHash, byte[] target, int nonce) {
         this.prevHash = prevHash;
         this.rootHash = rootHash;
-        this.timeStamp = timeStamp;
         this.target = target;
         this.nonce = nonce;
         long time=System.currentTimeMillis()/1000;
-        this.timestamp = (int)time;
+        this.timeStamp = (int)time;
     }
 
     
-    public static boolean mineBlock(Block block) {
-        Random rand = new Random();
-        Block.nonce = rand.nextInt();
-        String byteString = Block.nonce + Block.rootHash;
-        byte[] guess = getSHA(byteString);
-        System.out.println("Mining Attempt");
-        while(Byte.compare(guess,Block.target) > 0){ 
-            Block.nonce = rand.nextInt();
-            byteString = Block.nonce + Block.rootHash;
-            guess = getSHA(byteString); 
-            System.out.println("Mining Attempt");
-        } 
-        return true;
+    public boolean mineBlock(Block block) throws NoSuchAlgorithmException{
+        Random rand = new Random();
+        nonce = rand.nextInt();
+        String byteString = nonce + rootHash;
+        byte[] guess = getSHA(byteString);
+        System.out.println("Mining Attempt");
+        BigInteger guessNumber = new BigInteger(guess);
+        BigInteger targetNumber = new BigInteger(target);
+        while(guessNumber.compareTo(targetNumber) == 1){ 
+            nonce = rand.nextInt();
+            byteString = nonce + rootHash;
+            guess = getSHA(byteString); 
+            System.out.println("Mining Attempt");
+        } 
+        return true;
     }
     
 
@@ -60,7 +61,7 @@ public class Block{
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
-    public String calculateBlockHash() {
+    public String calculateBlockHash() throws NoSuchAlgorithmException{
         String stringTarget = new String(target, StandardCharsets.UTF_8);
         String input = prevHash + rootHash + Long.toString(timeStamp) + stringTarget + Integer.toString(nonce);
         MessageDigest md = null;
@@ -69,17 +70,34 @@ public class Block{
             md = MessageDigest.getInstance("SHA-256");
             String retval = new String(md.digest(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
             return retval;
-        } catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
+        return " ";
     }
     public String[] parseFileNames(String fileSequence) {
         String[] fileNames = fileSequence.split("\\.");
         return fileNames;
     }
 
-    public static void main(String [] args){
-        Block b = new Block();  
+    private static byte[] intToByteArray(final int i) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos);
+        dos.writeInt(i);
+        dos.flush();
+        return bos.toByteArray();
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Test");
+        byte[] firstTarget = null;
+        try {
+            firstTarget = intToByteArray(2 ^ 256 - 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Integer zero = new Integer(0);
+        Block b = new Block(zero.toString(), zero.toString(), firstTarget, 10);
         FileInputStream fis = null;
         BufferedReader reader = null;
         File file = null;
@@ -87,11 +105,11 @@ public class Block{
         String[] fileNames;
         ArrayList<Block> blocks = new ArrayList<>();
 
-        try{
-            Scanner myObj = new Scanner(System.in); 
+        try {
+            Scanner myObj = new Scanner(System.in);
             System.out.println("Please enter file sequence");
-            fileNames = b.parseFileNames(myObj.nextLine()); 
-            blocks.add(0, new Block(0, 0, ))
+            fileNames = b.parseFileNames(myObj.nextLine());
+            blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10));
             for(int i = 1; i < fileNames.length; i++){
 
             }
