@@ -38,4 +38,8 @@ public class Block{
         // and return array of byte 
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
+
+    public static void main(String [] args){
+        
+    }
 }
