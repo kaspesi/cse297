@@ -1,1 +1,2 @@
-javac Tree.java; java Tree
+java Tree;
+javac -d . Tree.java
