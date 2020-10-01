@@ -19,14 +19,11 @@ public class Block{
     private int nonce;
     private InnerNode root; 
     private String fileName; 
+    private Tree tree;
+    
     
     public Block (String prevHash, String rootHash, byte[] target, int nonce, String fileName) throws NoSuchAlgorithmException {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        
         
         this.prevHash = prevHash;
         this.fileName = fileName;
@@ -34,10 +31,20 @@ public class Block{
         this.nonce = nonce;
         long time=System.currentTimeMillis()/1000;
         this.timeStamp = (int)time;
-        Tree mTree = new Tree(fileName);
-        this.root = mTree.getRoot();
-        this.rootHash = new String(md.digest(this.root.getSHA()), StandardCharsets.UTF_8);
+        this.tree = new Tree(fileName);
+        this.root = this.tree.getRoot();
+        this.rootHash = toHexString(this.root.getSHA());
         this.mineBlock();
+    }
+
+    public String[] getHeaderInfo(){
+        String[] headerInfo = new String[5];
+        headerInfo[0] = this.prevHash;
+        headerInfo[1] = this.rootHash;
+        headerInfo[2] = (new Integer(this.timeStamp)).toString();
+        headerInfo[3] = toHexString(this.target);
+        headerInfo[4] = (new Integer(this.nonce)).toString();
+        return headerInfo;
     }
     
 
@@ -46,6 +53,26 @@ public class Block{
     public String getRootHash(){
         return this.rootHash;
     }
+
+    public InnerNode getRootNode(){
+        return this.root;
+    }
+
+    public String getFileName(){
+        return this.fileName;
+    }
+
+    public Tree getTree(){
+        return this.tree;
+    }
+
+    public String toHexString(byte[] hash)  { 
+        BigInteger number = new BigInteger(1, hash);  
+        StringBuilder hexString = new StringBuilder(number.toString(16));  
+        while (hexString.length() < 32)  
+            hexString.insert(0, '0');   
+        return hexString.toString();  
+    } 
     
     public boolean mineBlock() throws NoSuchAlgorithmException{
         Random rand = new Random();
@@ -82,7 +109,8 @@ public class Block{
         byte[] bytes = null;
         try {
             md = MessageDigest.getInstance("SHA-256");
-            String retval = new String(md.digest(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+            //String retval = new String(md.digest(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+            String retval = toHexString(md.digest(input.getBytes(StandardCharsets.UTF_8)));
             return retval;
         } catch(Exception e) {
             e.printStackTrace();
@@ -100,6 +128,21 @@ public class Block{
         dos.writeInt(i);
         dos.flush();
         return bos.toByteArray();
+    }
+
+    public String printBlocks(ArrayList<Block> blocks, boolean printTree){
+        for(Block b : blocks){
+            System.out.println("BEGINING BLOCK");
+            System.out.println("BEGIN HEADER");
+            String[] headerInfo = b.getHeaderInfo();
+            System.out.println(headerInfo[0] + "\n" + headerInfo[1] + "\n" + headerInfo[2] + "\n" + headerInfo[3] + "\n" + headerInfo[4]);
+            System.out.println("BEGIN HEADER");
+            InnerNode root = b.getRootNode();
+            if(printTree) b.getTree().printTree(root, b.getFileName());
+            System.out.println("END BLOCK\n");
+      }
+
+      return "";
     }
 
     public static void main(String[] args) {
@@ -125,9 +168,11 @@ public class Block{
             fileNames = b.parseFileNames(myObj.nextLine());
             if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
-                String prevHash = blocks.get(i-1).getRootHash();
-                blocks.add(i, new Block(prevHash , zero.toString(), firstTarget, 10, fileNames[i]));
+                // String prevHash = blocks.get(i-1).getRootHash();
+                blocks.add(i, new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
             }
+
+            b.printBlocks(blocks, false);
            
         } catch(Exception e){
             e.printStackTrace();
