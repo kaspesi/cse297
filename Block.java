@@ -8,10 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.lang.Integer; 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.math.BigInteger;  
-import java.nio.charset.StandardCharsets; 
-import java.security.MessageDigest;  
-import java.security.NoSuchAlgorithmException;
 import cse297.Tree.*;
 
 public class Block{
@@ -22,7 +18,7 @@ public class Block{
     private byte[] target;
     private int nonce;
     private InnerNode root; 
-    private fileName; 
+    private String fileName; 
     
     public Block (String prevHash, String rootHash, byte[] target, int nonce, String fileName) throws NoSuchAlgorithmException {
         this.prevHash = prevHash;

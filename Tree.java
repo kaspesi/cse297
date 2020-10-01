@@ -18,6 +18,7 @@ public class Tree {
     
     InnerNode root;
     public Tree(String fileName){
+        fileName = this.formatFileName(fileName);
         ArrayList<String> strings = new ArrayList<>();
         FileInputStream fis = null;
         BufferedReader reader = null;
@@ -211,7 +212,7 @@ public class Tree {
 
     }
 
-    public static String formatFileName(String fileName){
+    public String formatFileName(String fileName){
         if(fileName.contains(".txt")){
             return "/" + fileName;
         } else {
