@@ -22,11 +22,17 @@ public class Block{
     private byte[] target;
     private int nonce;
     private InnerNode root; 
-    private fileName; 
+    private String fileName; 
     
     public Block (String prevHash, String rootHash, byte[] target, int nonce, String fileName) throws NoSuchAlgorithmException {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        
         this.prevHash = prevHash;
-        this.rootHash = rootHash;
         this.fileName = fileName;
         this.target = target;
         this.nonce = nonce;
@@ -34,23 +40,28 @@ public class Block{
         this.timeStamp = (int)time;
         Tree mTree = new Tree(fileName);
         this.root = mTree.getRoot();
+        this.rootHash = new String(md.digest(this.root.getSHA()), StandardCharsets.UTF_8);
         this.mineBlock();
     }
+    
 
     public Block() {}
 
+    public String getRootHash(){
+        return this.rootHash;
+    }
     
     public boolean mineBlock() throws NoSuchAlgorithmException{
         Random rand = new Random();
-        nonce = rand.nextInt();
-        String byteString = nonce + rootHash;
+        this.nonce = rand.nextInt();
+        String byteString = this.nonce + this.rootHash;
         byte[] guess = getSHA(byteString);
         System.out.println("Mining Attempt");
         BigInteger guessNumber = new BigInteger(guess);
         BigInteger targetNumber = new BigInteger(target);
         while(guessNumber.compareTo(targetNumber) == 1){ 
             this.nonce = rand.nextInt();
-            byteString = nonce + rootHash;
+            byteString = nonce + this.rootHash;
             guess = getSHA(byteString); 
             guessNumber = new BigInteger(guess);
             System.out.println("Mining Attempt");
@@ -118,7 +129,8 @@ public class Block{
             fileNames = b.parseFileNames(myObj.nextLine());
             if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
-                blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[i]));
+                String prevHash = blocks.get(i-1).getRootHash();
+                blocks.add(i, new Block(prevHash , zero.toString(), firstTarget, 10, fileNames[i]));
             }
            
         } catch(Exception e){

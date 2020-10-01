@@ -23,7 +23,7 @@ public class Tree {
         BufferedReader reader = null;
         File file = null;
         String currentDirectory = null;
-
+        fileName = this.formatFileName(fileName);
         try{
             currentDirectory = System.getProperty("user.dir");
             file=new File(currentDirectory + fileName);   
@@ -39,7 +39,7 @@ public class Tree {
             Collections.sort(strings);
             this.root = this.generateMerkleTree(strings);
             this.generatePatriciaEdges(root);
-            this.printTree(root, fileName);
+            //this.printTree(root, fileName);
         }
         catch(Exception e)  
         {  
