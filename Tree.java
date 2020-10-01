@@ -1,3 +1,5 @@
+package cse297;
+
 import java.io.*;  
 import java.util.*;
 import java.math.BigInteger;  
@@ -31,18 +33,22 @@ public class Tree {
             String line = reader.readLine();
             while(line != null){
                 strings.add(line);
+                //System.out.println(line);
                 line = reader.readLine();
             }   
             Collections.sort(strings);
-            this.generateMerkleTree(strings);
+            this.root = this.generateMerkleTree(strings);
             this.generatePatriciaEdges(root);
             this.printTree(root, fileName);
-
         }
         catch(Exception e)  
         {  
             e.printStackTrace();  
         }  
+    }
+
+    public InnerNode getRoot(){
+        return this.root;
     }
 
     class Node {
@@ -317,6 +323,7 @@ public class Tree {
     //Traverses search itteratively with BFS to get nodes in print order 
     //If statements in order to cast InnerNode to LeafNode 
     public String printTree(InnerNode node, String fileName){
+        String retString = "";
         try {
 
             //Generate output file name
@@ -367,6 +374,7 @@ public class Tree {
                 System.out.println(printStr);
                 out.write(printStr);
             }
+            retString = out.toString();
             out.close();
 
             return " ";
@@ -375,7 +383,7 @@ public class Tree {
             e.printStackTrace();
         }
 
-        return " ";
+        return retString;
         
     }
 

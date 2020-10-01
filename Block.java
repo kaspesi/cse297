@@ -1,3 +1,4 @@
+package cse297;
 import java.io.*;  
 import java.util.*;
 import java.math.BigInteger;  
@@ -5,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;  
 import java.security.NoSuchAlgorithmException;
 import java.lang.Integer; 
+import cse297.Tree.*;
+
 
 
 public class Block{
@@ -14,33 +17,21 @@ public class Block{
 
         String fileNamesInput = ""; 
         String[] fileNames = null;
-        ArrayList<String> strings = new ArrayList<>();
-        FileInputStream fis = null;
-        BufferedReader reader = null;
-        File file = null;
-        String currentDirectory = null;
-        Tree obj = new Tree();
-
+        Tree test = new Tree("/test.txt");
+        InnerNode root = test.getRoot();
+        String test1 = test.printTree(root, "test.txt");
+        System.out.println(test1);
         try{
 
             //Get user input 
             Scanner myObj = new Scanner(System.in); 
-            System.out.println("Please the file names u dumb bing bong");
-            fileName = formatFileName(myObj.nextLine()); 
-            currentDirectory = System.getProperty("user.dir");
-            file=new File(currentDirectory + fileName);   
-            fis=new FileInputStream(file);    
-            reader = new BufferedReader(new InputStreamReader(fis));
+            System.out.println("Please enter the sequence of file names");
+            fileNamesInput = myObj.nextLine(); 
             
-            String line = reader.readLine();
-            while(line != null){
-                strings.add(line);
-                line = reader.readLine();
-            }   
-            Collections.sort(strings);
-            InnerNode root = obj.generateMerkleTree(strings);
-            obj.generatePatriciaEdges(root);
-            obj.printTree(root, fileName);
+
+
+
+
 
         }
         catch(Exception e)  
