@@ -132,14 +132,137 @@ public class Block{
 
     public String printBlocks(ArrayList<Block> blocks, boolean printTree){
         for(Block b : blocks){
-            System.out.println("BEGINING BLOCK");
+            String retString = "";
+            InnerNode node = b.getRootNode();
+            try {
+                String fileName = b.getFileName();
+                String[] nameParts = fileName.split("\\.");
+                fileName = nameParts[0] + ".block.out";
+                fileName = fileName.replace("/", "");
+                File myOut = new File(fileName);
+                System.out.println();
+                System.out.println(myOut.getName());
+                System.out.println();
+                BufferedWriter writer = new BufferedWriter(new FileWriter(myOut.getName()));
+                myOut.createNewFile();
+                //if(myOut.createNewFile()) {
+                    writer.newLine();
+                    writer.write("BEGIN BLOCK");
+                    writer.newLine();
+                    writer.write("BEGIN HEADER");
+                    writer.newLine();
+                    String[] headerInfo = b.getHeaderInfo();
+                    writer.write(headerInfo[0]);
+                    writer.newLine();
+                    writer.write(headerInfo[1]);
+                    writer.newLine();
+                    writer.write(headerInfo[2]);
+                    writer.newLine();
+                    writer.write(headerInfo[3]);
+                    writer.newLine();
+                    writer.write(headerInfo[4]);
+                    writer.newLine();
+                    writer.write("END HEADER");
+                    writer.newLine();
+                    writer.newLine();
+
+                    LinkedList<InnerNode> q = new LinkedList<>();
+                    ArrayList<LeafNode> q_leafs = new ArrayList<>();
+
+                    int p = 0;
+                    if (node == null) {
+                        return " ";
+                    }
+                    
+                    q.add(node);
+                    while (!q.isEmpty()) {
+                        p++;
+                        InnerNode curr = (InnerNode)q.pollLast();
+                        if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                            InnerNode leftChild = (InnerNode)curr.getLeftChild();
+                            InnerNode rightChild = (InnerNode)curr.getRightChild();
+                            String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                            System.out.println(printStr);
+                            writer.write(Integer.toString(p));
+                            writer.newLine();
+                            writer.write(Integer.toString((2*p)));
+                            writer.newLine();
+                            writer.write(curr.getLeftChildLabel());
+                            writer.newLine();
+                            writer.write(curr.getLeftChildLabel());
+                            writer.newLine();
+                            writer.write(curr.getSHAString());
+                            writer.newLine();
+                            writer.write(curr.getRightChildLabel());
+                            writer.newLine();
+                            writer.write(Integer.toString((2*p+1)));
+                            writer.newLine();
+                            writer.newLine();
+                            q.addFirst((InnerNode)curr.getLeftChild());
+                            q.addFirst((InnerNode)curr.getRightChild());
+                        } else {
+                            LeafNode leftChild = (LeafNode)curr.getLeftChild();
+                            LeafNode rightChild = (LeafNode)curr.getRightChild();
+                            String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                            System.out.println(printStr);
+                            writer.write(Integer.toString(p));
+                            writer.newLine();
+                            writer.write(Integer.toString((2*p)));
+                            writer.newLine();
+                            writer.write(curr.getLeftChildLabel());
+                            writer.newLine();
+                            writer.write(curr.getLeftChildLabel());
+                            writer.newLine();
+                            writer.write(curr.getSHAString());
+                            writer.newLine();
+                            writer.write(curr.getRightChildLabel());
+                            writer.newLine();
+                            writer.write(Integer.toString((2*p+1)));
+                            writer.newLine();
+                            writer.newLine();
+                            q_leafs.add((LeafNode)curr.getLeftChild());
+                            q_leafs.add((LeafNode)curr.getRightChild());
+                        }                        
+                    }
+
+                    for(LeafNode curr: q_leafs){
+                        p++;
+                        String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
+                        System.out.println(printStr);
+                        writer.write(Integer.toString(p));
+                        writer.newLine();
+                        writer.write(curr.getString());
+                        writer.newLine();
+                        writer.write(curr.getSHAString());
+                        writer.newLine();
+                        writer.newLine();
+                    }
+                    writer.write("END BLOCK");
+                    retString = writer.toString();
+                    writer.close();
+                    return " ";
+
+                // } else {
+                //     System.out.println("File created already exists.");
+                // }
+
+
+            } catch (IOException e) {
+                System.out.println("An error has occured creating out file.");
+                e.printStackTrace();
+            }
+            
+            System.out.println("BEGIN BLOCK");
             System.out.println("BEGIN HEADER");
             String[] headerInfo = b.getHeaderInfo();
             System.out.println(headerInfo[0] + "\n" + headerInfo[1] + "\n" + headerInfo[2] + "\n" + headerInfo[3] + "\n" + headerInfo[4]);
-            System.out.println("BEGIN HEADER");
+            System.out.println("END HEADER");
             InnerNode root = b.getRootNode();
             if(printTree) b.getTree().printTree(root, b.getFileName());
             System.out.println("END BLOCK\n");
+            
+            return retString;
+            
       }
 
       return "";
