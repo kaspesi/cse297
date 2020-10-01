@@ -22,6 +22,8 @@ public class Block{
     private int target;
     private int nonce;
     
+    public Block () {}
+
     public Block (Block block, String rootHash, int target, int nonce) {
     
     }
@@ -39,7 +41,30 @@ public class Block{
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
+
+    public String[] parseFileNames(String fileSequence) {
+        String[] fileNames = fileSequence.split("\\.");
+        return fileNames;
+    }
+
     public static void main(String [] args){
-        
+        Block b = new Block();  
+        FileInputStream fis = null;
+        BufferedReader reader = null;
+        File file = null;
+        String currentDirectory = null;
+        String[] fileNames;
+
+
+
+        try{
+            Scanner myObj = new Scanner(System.in); 
+            System.out.println("Please enter file sequence");
+            fileNames = b.parseFileNames(myObj.nextLine()); 
+           
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+            
     }
 }
