@@ -18,12 +18,16 @@ public class Block{
 
     private String prevHash;
     private String rootHash;
-    private int timestamp;
-    private int target;
+    private int timeStamp;
+    private byte[] target;
     private int nonce;
     
-    public Block (Block block, String rootHash, int target, int nonce) {
-    
+    public Block (String prevHash, String rootHash, int timeStamp, byte[] target, int nonce) {
+        this.prevHash = prevHash;
+        this.rootHash = rootHash;
+        this.timeStamp = timeStamp;
+        this.target = target;
+        this.nonce = nonce;
     }
 
     
@@ -38,6 +42,20 @@ public class Block{
         // and return array of byte 
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
+
+    public String calculateBlockHash() {
+        String stringTarget = new String(target, StandardCharsets.UTF_8);
+        String input = prevHash + rootHash + Long.toString(timeStamp) + stringTarget + Integer.toString(nonce);
+        MessageDigest md = null;
+        byte[] bytes = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+            String retval = new String(md.digest(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+            return retval;
+        } catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String [] args){
         
