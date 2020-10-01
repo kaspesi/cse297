@@ -1,3 +1,5 @@
+package cse297;
+
 import java.io.*;  
 import java.util.*;
 import java.math.BigInteger;  
@@ -13,8 +15,41 @@ import java.lang.Integer;
 
 
 public class Tree {
+    
+    InnerNode root;
+    public Tree(String fileName){
+        ArrayList<String> strings = new ArrayList<>();
+        FileInputStream fis = null;
+        BufferedReader reader = null;
+        File file = null;
+        String currentDirectory = null;
 
+        try{
+            currentDirectory = System.getProperty("user.dir");
+            file=new File(currentDirectory + fileName);   
+            fis=new FileInputStream(file);    
+            reader = new BufferedReader(new InputStreamReader(fis));
+            
+            String line = reader.readLine();
+            while(line != null){
+                strings.add(line);
+                //System.out.println(line);
+                line = reader.readLine();
+            }   
+            Collections.sort(strings);
+            this.root = this.generateMerkleTree(strings);
+            this.generatePatriciaEdges(root);
+            this.printTree(root, fileName);
+        }
+        catch(Exception e)  
+        {  
+            e.printStackTrace();  
+        }  
+    }
 
+    public InnerNode getRoot(){
+        return this.root;
+    }
 
     class Node {
 
@@ -193,7 +228,6 @@ public class Tree {
         int n = keys.size();
         if(n%2 != 0){
             oddLeafs = true;
-            System.out.println("Odd keys");
         }
         int i = 0;
         //Generate first level of inner nodes from the leaf nodes
@@ -210,7 +244,6 @@ public class Tree {
             q.addLast(parent);
         }
 
-        System.out.println("Queue is now of length: " + q.size());
 
         //Continue taking children and adding parent at higher level until we reach a single root node
         while(q.size() != 1){
@@ -222,7 +255,6 @@ public class Tree {
             q = tempList;
         }
 
-        System.out.println("Queue is now of length: " + q.size());
         //Return root node
         return q.get(0);
     }
@@ -291,13 +323,11 @@ public class Tree {
     //Traverses search itteratively with BFS to get nodes in print order 
     //If statements in order to cast InnerNode to LeafNode 
     public String printTree(InnerNode node, String fileName){
+        String retString = "";
         try {
 
             //Generate output file name
             String[] nameParts = fileName.split("\\.");
-            for(String s: nameParts){
-                System.out.println(s);
-            }
             fileName = nameParts[0] + ".out.txt";
             fileName = fileName.replace("/", "");
             PrintWriter out = new PrintWriter(new FileWriter(fileName, true), true);
@@ -344,6 +374,7 @@ public class Tree {
                 System.out.println(printStr);
                 out.write(printStr);
             }
+            retString = out.toString();
             out.close();
 
             return " ";
@@ -352,46 +383,13 @@ public class Tree {
             e.printStackTrace();
         }
 
-        return " ";
+        return retString;
         
     }
 
     public static void main(String[] args) {
         
-        String fileName = ""; 
-        ArrayList<String> strings = new ArrayList<>();
-        FileInputStream fis = null;
-        BufferedReader reader = null;
-        File file = null;
-        String currentDirectory = null;
-        Tree obj = new Tree();
-
-        try{
-
-            //Get user input 
-            Scanner myObj = new Scanner(System.in); 
-            System.out.println("Please enter input file name");
-            fileName = formatFileName(myObj.nextLine()); 
-            currentDirectory = System.getProperty("user.dir");
-            file=new File(currentDirectory + fileName);   
-            fis=new FileInputStream(file);    
-            reader = new BufferedReader(new InputStreamReader(fis));
-            
-            String line = reader.readLine();
-            while(line != null){
-                strings.add(line);
-                line = reader.readLine();
-            }   
-            Collections.sort(strings);
-            InnerNode root = obj.generateMerkleTree(strings);
-            obj.generatePatriciaEdges(root);
-            obj.printTree(root, fileName);
-
-        }
-        catch(Exception e)  
-        {  
-            e.printStackTrace();  
-        }  
+    
 
      
     }
