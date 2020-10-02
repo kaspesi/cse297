@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import cse297.Tree.*;
 
-public class Block{
+public class Block implements java.io.Serializable{
 
     private String prevHash;
     private String rootHash;
@@ -76,20 +76,18 @@ public class Block{
     
     public boolean mineBlock() throws NoSuchAlgorithmException{
         Random rand = new Random();
-        this.nonce = rand.nextInt();
         String byteString = this.nonce + this.rootHash;
         byte[] guess = getSHA(byteString);
-        System.out.println("Mining Attempt");
         BigInteger guessNumber = new BigInteger(guess);
         BigInteger targetNumber = new BigInteger(target);
-        while(guessNumber.compareTo(targetNumber) == 1){ 
+        do{ 
             this.nonce = rand.nextInt();
             byteString = nonce + this.rootHash;
             guess = getSHA(byteString); 
             guessNumber = new BigInteger(guess);
             System.out.println("Mining Attempt");
             System.out.println("Guess: " + guessNumber.toString());
-        } 
+        } while(guessNumber.compareTo(targetNumber) == 1); 
         System.out.println("Target" + targetNumber.toString());
         return true;
     }
@@ -144,8 +142,8 @@ public class Block{
                 System.out.println(myOut.getName());
                 System.out.println();
                 BufferedWriter writer = new BufferedWriter(new FileWriter(myOut.getName()));
-                myOut.createNewFile();
-                //if(myOut.createNewFile()) {
+                System.out.println(myOut.createNewFile());
+                if(!myOut.createNewFile()) {
                     writer.newLine();
                     writer.write("BEGIN BLOCK");
                     writer.newLine();
@@ -242,9 +240,9 @@ public class Block{
                     writer.close();
                     return " ";
 
-                // } else {
-                //     System.out.println("File created already exists.");
-                // }
+                } else {
+                    System.out.println("File created already exists.");
+                }
 
 
             } catch (IOException e) {
@@ -291,11 +289,14 @@ public class Block{
             fileNames = b.parseFileNames(myObj.nextLine());
             if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
-                // String prevHash = blocks.get(i-1).getRootHash();
                 blocks.add(i, new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
             }
-
             b.printBlocks(blocks, false);
+            FileOutputStream fos = new FileOutputStream("serializedBlocks");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(blocks);
+            oos.close();
+            fos.close();
            
         } catch(Exception e){
             e.printStackTrace();

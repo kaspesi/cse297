@@ -14,8 +14,9 @@ import java.lang.Integer;
 
 
 
-public class Tree {
+public class Tree implements java.io.Serializable {
     
+    private static final long serialVersionUID = 1L;
     InnerNode root;
     public Tree(String fileName){
         fileName = this.formatFileName(fileName);
@@ -52,7 +53,7 @@ public class Tree {
         return this.root;
     }
 
-    class Node {
+    class Node implements java.io.Serializable {
 
         private Node leftChild;
         private String leftChildLabel;
