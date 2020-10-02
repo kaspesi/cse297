@@ -85,10 +85,7 @@ public class Block implements java.io.Serializable{
             byteString = nonce + this.rootHash;
             guess = getSHA(byteString); 
             guessNumber = new BigInteger(guess);
-            System.out.println("Mining Attempt");
-            System.out.println("Guess: " + guessNumber.toString());
         } while(guessNumber.compareTo(targetNumber) == 1); 
-        System.out.println("Target" + targetNumber.toString());
         return true;
     }
     
@@ -107,7 +104,6 @@ public class Block implements java.io.Serializable{
         byte[] bytes = null;
         try {
             md = MessageDigest.getInstance("SHA-256");
-            //String retval = new String(md.digest(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
             String retval = toHexString(md.digest(input.getBytes(StandardCharsets.UTF_8)));
             return retval;
         } catch(Exception e) {
@@ -129,21 +125,20 @@ public class Block implements java.io.Serializable{
     }
 
     public String printBlocks(ArrayList<Block> blocks, boolean printTree){
+        System.out.println(blocks);
         for(Block b : blocks){
+            System.out.println(b);
             String retString = "";
             InnerNode node = b.getRootNode();
             try {
-                String fileName = b.getFileName();
-                String[] nameParts = fileName.split("\\.");
-                fileName = nameParts[0] + ".block.out";
-                fileName = fileName.replace("/", "");
-                File myOut = new File(fileName);
-                System.out.println();
-                System.out.println(myOut.getName());
-                System.out.println();
+                String inputFileName = b.getFileName();
+                System.out.println(inputFileName);
+                String[] nameParts = inputFileName.split("\\.");
+                inputFileName = nameParts[0] + ".block.out";
+                inputFileName = inputFileName.replace("/", "");
+                File myOut = new File(inputFileName);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(myOut.getName()));
-                System.out.println(myOut.createNewFile());
-                if(!myOut.createNewFile()) {
+                myOut.createNewFile();
                     writer.newLine();
                     writer.write("BEGIN BLOCK");
                     writer.newLine();
@@ -179,8 +174,6 @@ public class Block implements java.io.Serializable{
                         if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
                             InnerNode leftChild = (InnerNode)curr.getLeftChild();
                             InnerNode rightChild = (InnerNode)curr.getRightChild();
-                            String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                            System.out.println(printStr);
                             writer.write(Integer.toString(p));
                             writer.newLine();
                             writer.write(Integer.toString((2*p)));
@@ -201,8 +194,6 @@ public class Block implements java.io.Serializable{
                         } else {
                             LeafNode leftChild = (LeafNode)curr.getLeftChild();
                             LeafNode rightChild = (LeafNode)curr.getRightChild();
-                            String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                            System.out.println(printStr);
                             writer.write(Integer.toString(p));
                             writer.newLine();
                             writer.write(Integer.toString((2*p)));
@@ -225,8 +216,6 @@ public class Block implements java.io.Serializable{
 
                     for(LeafNode curr: q_leafs){
                         p++;
-                        String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
-                        System.out.println(printStr);
                         writer.write(Integer.toString(p));
                         writer.newLine();
                         writer.write(curr.getString());
@@ -238,32 +227,15 @@ public class Block implements java.io.Serializable{
                     writer.write("END BLOCK");
                     retString = writer.toString();
                     writer.close();
-                    return " ";
-
-                } else {
-                    System.out.println("File created already exists.");
-                }
-
 
             } catch (IOException e) {
                 System.out.println("An error has occured creating out file.");
                 e.printStackTrace();
             }
-            
-            System.out.println("BEGIN BLOCK");
-            System.out.println("BEGIN HEADER");
-            String[] headerInfo = b.getHeaderInfo();
-            System.out.println(headerInfo[0] + "\n" + headerInfo[1] + "\n" + headerInfo[2] + "\n" + headerInfo[3] + "\n" + headerInfo[4]);
-            System.out.println("END HEADER");
-            InnerNode root = b.getRootNode();
-            if(printTree) b.getTree().printTree(root, b.getFileName());
-            System.out.println("END BLOCK\n");
-            
-            return retString;
-            
-      }
+               
+        }
 
-      return "";
+    return "";
     }
 
     public static void main(String[] args) {
@@ -291,6 +263,7 @@ public class Block implements java.io.Serializable{
             for(int i = 1; i < fileNames.length; i++){
                 blocks.add(i, new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
             }
+            System.out.println(blocks);
             b.printBlocks(blocks, false);
             FileOutputStream fos = new FileOutputStream("serializedBlocks");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
