@@ -13,7 +13,7 @@ import cse297.Tree.*;
 public class Validator implements java.io.Serializable {
     
     public static void main (String[] args){
-        System.out.println("Test");
+        // System.out.println("Test");
         FileInputStream fis = null;
         BufferedReader reader = null;
         File file = null;

@@ -125,14 +125,14 @@ public class Block implements java.io.Serializable{
     }
 
     public String printBlocks(ArrayList<Block> blocks, boolean printTree){
-        System.out.println(blocks);
+        // System.out.println(blocks);
         for(Block b : blocks){
-            System.out.println(b);
+            // System.out.println(b);
             String retString = "";
             InnerNode node = b.getRootNode();
             try {
                 String inputFileName = b.getFileName();
-                System.out.println(inputFileName);
+                // System.out.println(inputFileName);
                 String[] nameParts = inputFileName.split("\\.");
                 inputFileName = nameParts[0] + ".block.out";
                 inputFileName = inputFileName.replace("/", "");
@@ -238,7 +238,7 @@ public class Block implements java.io.Serializable{
     }
 
     public static void main(String[] args) {
-        System.out.println("Test");
+        // System.out.println("Test");
         byte[] firstTarget = null;
         try {
             firstTarget = intToByteArray(2 ^ 256 - 1);
@@ -262,7 +262,7 @@ public class Block implements java.io.Serializable{
             for(int i = 1; i < fileNames.length; i++){
                 blocks.add(i, new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
             }
-            System.out.println(blocks);
+            // System.out.println(blocks);
             b.printBlocks(blocks, false);
             FileOutputStream fos = new FileOutputStream("serializedBlocks");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
