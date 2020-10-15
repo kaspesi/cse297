@@ -8,28 +8,41 @@ import java.security.NoSuchAlgorithmException;
 import java.lang.Integer; 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import cse297.Block;
 import cse297.Tree.*;
 
 public class Validator implements java.io.Serializable {
     
+    public static boolean validateBlock(Block block){
+
+        System.out.println("Root hash: " + block.getRootHash());
+        return true;
+
+    }
+
+
     public static void main (String[] args){
         // System.out.println("Test");
         FileInputStream fis = null;
-        BufferedReader reader = null;
-        File file = null;
-        String currentDirectory = null;
         String fileName;
         ArrayList<Block> blocks = new ArrayList<>();
         try {
             Scanner myObj = new Scanner(System.in);
-            System.out.println("Please enter file of Serialized blockchain");
+            System.out.println("Please enter file of serialized blockchain");
             fileName = myObj.nextLine();
-
-
             fis = new FileInputStream(fileName);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            Object obj = ois.readObject();
-            System.out.println(obj);
+            blocks = (ArrayList<Block>)ois.readObject();
+            System.out.println("\nDeserialized Data:\n");
+            for(int i = 0; i < blocks.size();i++){
+                System.out.println("Block " + (i+1) + ": " + blocks.get(i));  
+                validateBlock(blocks.get(i));
+                System.out.println();
+            }
+            System.out.println();
+
+
             ois.close();
             fis.close();
         } catch(Exception e) {
