@@ -213,7 +213,6 @@ public class Block implements java.io.Serializable{
                             q_leafs.add((LeafNode)curr.getRightChild());
                         }                        
                     }
-
                     for(LeafNode curr: q_leafs){
                         p++;
                         writer.write(Integer.toString(p));
