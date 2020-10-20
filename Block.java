@@ -64,6 +64,14 @@ public class Block implements java.io.Serializable{
         return this.tree;
     }
 
+    public void setHash(String newHash) throws NoSuchAlgorithmException{
+        this.rootHash = getSHA(newHash).toString();
+
+    }
+    public String getHash(){
+        return this.rootHash;
+    }
+
     public String toHexString(byte[] hash)  { 
         BigInteger number = new BigInteger(1, hash);  
         StringBuilder hexString = new StringBuilder(number.toString(16));  
@@ -266,6 +274,10 @@ public class Block implements java.io.Serializable{
             if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
                 blocks.add(new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
+
+            }
+            for (int i = 0; i < blocks.size(); i ++) { 
+
             }
             // System.out.println(blocks);
             b.printBlocks(blocks, false);

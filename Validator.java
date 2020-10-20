@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 
 import cse297.Block;
 import cse297.Tree.*;
+// import jdk.internal.jimage.ImageReader.Node;
 
 public class Validator implements java.io.Serializable {
     
@@ -82,7 +83,7 @@ public class Validator implements java.io.Serializable {
             return Arrays.equals(currentSHA, childrenSHA);
         }
 
-        return false;
+        // return false;
     }
 
     public boolean checkMerkleRoot(Node root) throws NoSuchAlgorithmException {
@@ -109,37 +110,47 @@ public class Validator implements java.io.Serializable {
     public static boolean blockSearch(String string, Block block){
         System.out.println("Searching for term: " + string);
         System.out.println("Tree: " + block.getTree());
-
-
             
         return true;
 
     }
 
-    public static ArrayList<Block> generateBadBlockchain(ArrayList<Block> BadBlockChain){
-        
+    public static void generateBadBlockchain(ArrayList<Block> BadBlockChain) throws NoSuchAlgorithmException{
+        String s = "27 ad 66 a5 49 be e4 8e 94 cb ";
         for (int i = 0; i < BadBlockChain.size();i++){
-            System.out.println("BBC " + (i+1) + " " + BadBlockChain.get(i));
-
+            BadBlockChain.get(i).setHash(s);
         }
-        return BadBlockChain;
+        // System.out.println(BadBlockChain);
+        try{
+            FileOutputStream fos = new FileOutputStream("badBlocks");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(BadBlockChain);
+            oos.close();
+            fos.close();
+        }  catch(Exception e) {
+            e.printStackTrace();
+        }
+        //return BadBlockChain;
         
     }
 
 
     public static void main (String[] args){
         // System.out.println("Test");
+
         FileInputStream fis = null;
         String fileName;
         ArrayList<Block> blocks;
         Validator validate = new Validator();
         try {
+            
             Scanner myObj = new Scanner(System.in);
             System.out.println("Please enter file of serialized blockchain");
             fileName = myObj.nextLine();
             fis = new FileInputStream(fileName);
             ObjectInputStream ois = new ObjectInputStream(fis);
             blocks = (ArrayList<Block>)ois.readObject();
+            // generateBadBlockchain(blocks);
             System.out.println("\nDeserialized Data:\n");
             for(int i = 0; i < blocks.size();i++){
                 System.out.println("Block " + (i) + ": " + blocks.get(i));  
