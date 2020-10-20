@@ -130,6 +130,7 @@ public class Block implements java.io.Serializable{
 
     public String printBlocks(ArrayList<Block> blocks, boolean printTree){
         // System.out.println(blocks);
+
         for(Block b : blocks){
             // System.out.println(b);
             String retString = "";
@@ -239,6 +240,49 @@ public class Block implements java.io.Serializable{
         }
 
     return "";
+    }
+
+    public List<List<String>> getTransactions(Block block){
+        // System.out.println(blocks);
+        List<List<String>> leafTransactionStrings = new ArrayList<List<String>>();
+        InnerNode node = block.getRootNode();
+
+        LinkedList<InnerNode> q = new LinkedList<>();
+        ArrayList<LeafNode> q_leafs = new ArrayList<>();
+
+        int p = 0;
+        if (node == null) {
+            return leafTransactionStrings;
+        }
+        
+        q.add(node);
+        while (!q.isEmpty()) {
+            p++;
+            InnerNode curr = (InnerNode)q.pollLast();
+            if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                InnerNode leftChild = (InnerNode)curr.getLeftChild();
+                InnerNode rightChild = (InnerNode)curr.getRightChild();
+                q.addFirst((InnerNode)curr.getLeftChild());
+                q.addFirst((InnerNode)curr.getRightChild());
+            } else {
+                LeafNode leftChild = (LeafNode)curr.getLeftChild();
+                LeafNode rightChild = (LeafNode)curr.getRightChild();
+                q_leafs.add((LeafNode)curr.getLeftChild());
+                q_leafs.add((LeafNode)curr.getRightChild());
+
+            }                        
+        }
+        for(LeafNode curr: q_leafs){
+            p++;
+            ArrayList<String> stringAndHash = new ArrayList<>();
+            stringAndHash.add(curr.getString());
+            // System.out.println(stringAndHash.add(curr.getString()));
+            stringAndHash.add(curr.getSHAString());
+            leafTransactionStrings.add(stringAndHash);
+        }   
+
+
+        return leafTransactionStrings;
     }
 
     public static void main(String[] args) {

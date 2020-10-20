@@ -61,27 +61,27 @@ public class Validator implements java.io.Serializable {
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)leftChild) && checkMerkleRootHelper((InnerNode)leftChild);
         } else if(leftChild.isLeafNode() && !rightChild.isLeafNode()){ //Left child is leafNode
-            System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
+            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
+            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)leftChild);
         } else if(!leftChild.isLeafNode() && rightChild.isLeafNode()){ //Right child is the leafNode
-            System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
+            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
+            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)rightChild);
         } else {  //BOTH LEAF NODES
             if(leftChild == null || rightChild == null) return false;
-            System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
+            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
+            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA);
         }
 
-        return false;
+        
     }
 
     public boolean checkMerkleRoot(Node root) throws NoSuchAlgorithmException {
@@ -105,11 +105,39 @@ public class Validator implements java.io.Serializable {
     }
 
 
+    public Map<String,Block> generateIndexStructure(ArrayList<Block> blocks){
+        Map<String,Block> map = new HashMap<>();
+        for(Block b: blocks){
+            
+            List<List<String>> blockInfo = b.getTransactions(b);
+            for(List<String> stringAndHash: blockInfo){
+                map.put(stringAndHash.get(0), b);
+                System.out.println(stringAndHash.get(0)+ "  -->  " + b.getRootHash());
+            }
+        }
+
+        // map.forEach((key, value) -> { 
+        //     System.out.println(value.getRootHash());
+        // });
+        // for (String str: map.keySet()){
+        //     System.out.println("TEST");
+        //     String key = str.toString();
+        //     String value = map.get(str).toString();  
+        //     System.out.println(key + " " + value);  
+        //     System.out.println("TEST");
+        // } 
+
+        return map;
+    }
+
+
+
+
     public static void main (String[] args){
         // System.out.println("Test");
         FileInputStream fis = null;
         String fileName;
-        ArrayList<Block> blocks;
+        ArrayList<Block> blocks = new ArrayList<>();;
         Validator validate = new Validator();
         try {
             Scanner myObj = new Scanner(System.in);
@@ -134,6 +162,10 @@ public class Validator implements java.io.Serializable {
         } catch(Exception e) {
             e.printStackTrace();
         }
+
+
+        validate.generateIndexStructure(blocks);
+
     }
 
 }
