@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets; 
 import java.security.MessageDigest;  
 import java.security.NoSuchAlgorithmException;
+import java.lang.Cloneable;
 import java.lang.Integer; 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -98,10 +99,31 @@ public class Validator implements java.io.Serializable {
     public static boolean inchain(String string, ArrayList<Block> blockChain){
         
         for (int i = 0; i < blockChain.size(); i++){
-            System.out.println("Root Hash: " + blockChain.get(i).getRootHash());
+            System.out.println("Searching in Root Hash: " + blockChain.get(i).getRootHash());
+            blockSearch(string,blockChain.get(i));
         }
         return true;
 
+    }
+
+    public static boolean blockSearch(String string, Block block){
+        System.out.println("Searching for term: " + string);
+        System.out.println("Tree: " + block.getTree());
+
+
+            
+        return true;
+
+    }
+
+    public static ArrayList<Block> generateBadBlockchain(ArrayList<Block> BadBlockChain){
+        
+        for (int i = 0; i < BadBlockChain.size();i++){
+            System.out.println("BBC " + (i+1) + " " + BadBlockChain.get(i));
+
+        }
+        return BadBlockChain;
+        
     }
 
 
@@ -155,7 +177,13 @@ public class Validator implements java.io.Serializable {
             }
             System.out.println();
             String string  = "T7SCG4jK0PbC7iwB7oVe";
-            inchain(string, blocks);
+            ArrayList<Block> badBlockchain = new ArrayList<Block>();
+            badBlockchain = (ArrayList<Block>)blocks.clone();
+
+            generateBadBlockchain(badBlockchain);
+
+            // inchain(string, blocks);
+            
 
             ois.close();
             fis.close();
