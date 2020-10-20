@@ -116,11 +116,15 @@ public class Validator implements java.io.Serializable {
     }
 
     public static void generateBadBlockchain(ArrayList<Block> BadBlockChain) throws NoSuchAlgorithmException{
-        String s = "27 ad 66 a5 49 be e4 8e 94 cb ";
+        String s = "rdlkhregtht34t";
+        System.out.println("Generating Bad Blockchain\n");
         for (int i = 0; i < BadBlockChain.size();i++){
+            System.out.println("Old Hash: " + BadBlockChain.get(i).getRootHash());
             BadBlockChain.get(i).setHash(s);
+            System.out.println("New Hash: " + BadBlockChain.get(i).getRootHash());
         }
-        // System.out.println(BadBlockChain);
+        System.out.println();
+        
         try{
             FileOutputStream fos = new FileOutputStream("badBlocks");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
