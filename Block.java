@@ -29,8 +29,6 @@ public class Block implements java.io.Serializable{
         this.fileName = fileName;
         this.target = target;
         this.nonce = nonce;
-        long time=System.currentTimeMillis()/1000;
-        this.timeStamp = (int)time;
         this.tree = new Tree(fileName);
         this.root = this.tree.getRoot();
         this.rootHash = toHexString(this.root.getSHA());
@@ -76,16 +74,21 @@ public class Block implements java.io.Serializable{
     
     public boolean mineBlock() throws NoSuchAlgorithmException{
         Random rand = new Random();
-        String byteString = this.nonce + this.rootHash;
+        int attemptedNonce = rand.nextInt();
+        String byteString = attemptedNonce + this.rootHash;
         byte[] guess = getSHA(byteString);
         BigInteger guessNumber = new BigInteger(guess);
         BigInteger targetNumber = new BigInteger(target);
         do{ 
-            this.nonce = rand.nextInt();
-            byteString = nonce + this.rootHash;
+            attemptedNonce = rand.nextInt();
+            byteString = attemptedNonce + this.rootHash;
             guess = getSHA(byteString); 
             guessNumber = new BigInteger(guess);
+            System.out.println("Found nonce: " + attemptedNonce);
         } while(guessNumber.compareTo(targetNumber) == 1); 
+        this.nonce = attemptedNonce;
+        long time=System.currentTimeMillis()/1000;
+        this.timeStamp = (int)time;
         return true;
     }
     
@@ -109,6 +112,7 @@ public class Block implements java.io.Serializable{
         } catch(Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Error shouldnt get to here");
         return " ";
     }
     public String[] parseFileNames(String fileSequence) {
@@ -258,9 +262,10 @@ public class Block implements java.io.Serializable{
             Scanner myObj = new Scanner(System.in);
             System.out.println("Please enter file sequence");
             fileNames = b.parseFileNames(myObj.nextLine());
+            System.out.println("Storing: " + fileNames.length +" files");
             if(fileNames.length > 0) blocks.add(0, new Block(zero.toString(), zero.toString(), firstTarget, 10, fileNames[0]));
             for(int i = 1; i < fileNames.length; i++){
-                blocks.add(i, new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
+                blocks.add(new Block(blocks.get(i-1).calculateBlockHash() , zero.toString(), firstTarget, 10, fileNames[i]));
             }
             // System.out.println(blocks);
             b.printBlocks(blocks, false);
