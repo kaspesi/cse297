@@ -74,10 +74,10 @@ public class Tree implements java.io.Serializable {
             this.rightChildLabel = rightLabel;
         }
 
-        private Node getRightChild(){
+        public Node getRightChild(){
             return this.rightChild;
         }
-        private Node getLeftChild(){
+        public Node getLeftChild(){
             return this.rightChild;
         }
 
