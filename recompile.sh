@@ -1,3 +1,3 @@
 javac -d . Tree.java;
 javac -d . Block.java;
-javac -d . Validator.java;
+javac -d . Validator.java; 
