@@ -21,6 +21,15 @@ public class Validator implements java.io.Serializable {
 
     }
 
+    public static boolean inchain(String string, ArrayList<Block> blockChain){
+        
+        for (int i = 0; i < blockChain.size(); i++){
+            System.out.println("Root Hash: " + blockChain.get(i).getRootHash());
+        }
+        return true;
+
+    }
+
 
     public static void main (String[] args){
         // System.out.println("Test");
@@ -41,7 +50,8 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
-
+            String string  = "T7SCG4jK0PbC7iwB7oVe";
+            inchain(string, blocks);
 
             ois.close();
             fis.close();
