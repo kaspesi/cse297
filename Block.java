@@ -64,6 +64,10 @@ public class Block implements java.io.Serializable{
         return this.tree;
     }
 
+    public String getPrevHash(){
+        return this.prevHash;
+    }
+
     //Used for testing invalid blocks 
     public void setRootHash(String newHash) throws NoSuchAlgorithmException{
         this.root.setSHA(getSHA(newHash));
