@@ -356,11 +356,7 @@ public class Validator implements java.io.Serializable {
             // ArrayList<Block> badBlockchain = new ArrayList<Block>();
             // badBlockchain = (ArrayList<Block>)blocks.clone();
 
-<<<<<<< HEAD
-            //generateBadBlockchain(badBlockchain);
-=======
             // generateBadBlockchain(badBlockchain);
->>>>>>> origin
 
             
 
@@ -369,11 +365,8 @@ public class Validator implements java.io.Serializable {
         } catch(Exception e) {
             e.printStackTrace();
         }
-<<<<<<< HEAD
         System.out.println("Valid Blockchain: " + validate.validateBlockChain(blocks));
-=======
 
->>>>>>> origin
         validate.generateIndexStructure(blocks);
         validate.validateBlockChain(blocks);
         validate.inchain("zulr6clwo7d1if8aylw6", blocks, true);
