@@ -209,17 +209,29 @@ public class Block implements java.io.Serializable{
         while (!q.isEmpty()) {
             InnerNode curr = (InnerNode)q.pollLast();
             if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                boolean rightIsEmpty = false;
+                InnerNode rightChild = null;
+                if(curr.getRightChild().isEmptyNode()){
+                    rightIsEmpty = true;
+                }
                 InnerNode leftChild = (InnerNode)curr.getLeftChild();
-                InnerNode rightChild = (InnerNode)curr.getRightChild();
+                if(!rightIsEmpty){
+                    rightChild = (InnerNode)curr.getRightChild();
+                    q.addFirst((InnerNode)curr.getRightChild());
+                } 
                 q.addFirst((InnerNode)curr.getLeftChild());
-                q.addFirst((InnerNode)curr.getRightChild());
+            
+            } else if(!curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
+                InnerNode leftChild = (InnerNode)curr.getLeftChild();
+                q.addFirst(leftChild);
             } else {
                 LeafNode leftChild = (LeafNode)curr.getLeftChild();
                 LeafNode rightChild = (LeafNode)curr.getRightChild();
-                q_leafs.add((LeafNode)curr.getLeftChild());
-                q_leafs.add((LeafNode)curr.getRightChild());
+                q_leafs.add(rightChild);
+                q_leafs.add(leftChild);
 
-            }                        
+            }    
+                                
         }
         ArrayList<String> leafStrings = new ArrayList<>();
         for(LeafNode curr: q_leafs){
