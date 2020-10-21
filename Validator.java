@@ -72,12 +72,12 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
                 c++;
             } else {
-                System.out.println("Check 1");
-                System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
-                System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
-                System.out.println("Check 2");
-                System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
-                System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
+                // System.out.println("Check 1");
+                // System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
+                // System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
+                // System.out.println("Check 2");
+                // System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
+                // System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
                 System.out.println(block + " is not valid");
                 System.out.println();
                 return false;
@@ -86,6 +86,7 @@ public class Validator implements java.io.Serializable {
 
        return valid;
        
+       return true;
     }
 
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
@@ -343,7 +344,7 @@ public class Validator implements java.io.Serializable {
             System.out.println("\nDeserialized Data:\n");
             for(int i = 0; i < blocks.size();i++){
                 System.out.println("Block " + (i) + ": " + blocks.get(i));  
-                //boolean valid = validate.validateBlock(blocks.get(i));
+                boolean valid = validate.validateBlock(blocks.get(i));
                 System.out.println("Block result: " + valid);
                 System.out.println();
             }
@@ -360,7 +361,7 @@ public class Validator implements java.io.Serializable {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        validate.validateBlockChain(blocks);
+
         validate.generateIndexStructure(blocks);
         validate.validateBlockChain(blocks);
         validate.inchain("zulr6clwo7d1if8aylw6", blocks, true);
