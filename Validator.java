@@ -21,6 +21,14 @@ public class Validator implements java.io.Serializable {
 
     }
 
+    public String toHexString(byte[] hash)  { 
+        BigInteger number = new BigInteger(1, hash);  
+        StringBuilder hexString = new StringBuilder(number.toString(16));  
+        while (hexString.length() < 32)  
+            hexString.insert(0, '0');   
+        return hexString.toString();  
+    } 
+
     public byte[] getSHAFromNodes(byte[] one, byte[] two) throws NoSuchAlgorithmException {  
         ByteArrayOutputStream outputStream = null;
         MessageDigest md = null;
@@ -160,31 +168,68 @@ public class Validator implements java.io.Serializable {
         }
     }
 
-    public boolean inchain(String string, ArrayList<Block> blockChain, boolean inChain){
+    public boolean inchain(String string, ArrayList<Block> blockChain, boolean inChain) throws NoSuchAlgorithmException{
         
         Block block = this.indexStructure.get(string);
         // List<List<String>> blockInfo = block.getTransactions(block);
         // for(List<String> stringAndHash: blockInfo){
         //     System.out.println(stringAndHash.get(0));
         // }
-        locateTransaction(string, block);
-        System.out.println(block.getRootHash());
+        ArrayList<byte[]> path = locateTransaction(string, block);
+        boolean result = verifyTransactionPath(path);
+        System.out.println("Verifying Transaction Path Result :" + result);
+
+        // System.out.println(block.getRootHash());
 
         return inChain;
     }
 
+    public boolean verifyTransactionPath(ArrayList<byte[]> path) throws NoSuchAlgorithmException{
+        System.out.println(path.size());
+        for(byte[] hash: path){
+            System.out.println(toHexString(hash));
+        }
+        System.out.println("\n\n");
+        for(int i = 0; i < path.size() -2; i+=2){
+            System.out.println(toHexString(path.get(i)));
+            System.out.println(toHexString(path.get(i+1)));
 
-    public String locateTransaction(String string, Block b){
+            byte[] sibblingHASH = getSHAFromNodes(path.get(i+1), path.get(i));
+            // byte[] sibblingHASH2 = getSHAFromNodes(path.get(i), path.get(i+1));
+
+            // if(!Arrays.equals(path.get(i+2), sibblingHASH) && !Arrays.equals(path.get(i+2), sibblingHASH2)) {
+            if(!Arrays.equals(path.get(i+2), sibblingHASH)) {
+                System.out.println("\n\n"+toHexString(path.get(i)));
+                System.out.println(toHexString(path.get(i+1)));
+                System.out.println(toHexString(sibblingHASH));
+                // System.out.println(toHexString(sibblingHASH2));
+
+                System.out.println("not equal to:");
+                System.out.println(toHexString(path.get(i+2)));
+                return false;
+            }
+            System.out.println(toHexString(sibblingHASH));
+            System.out.println(toHexString(path.get(i+2)));
+            System.out.println("\n\n");
+
+        }
+
+        return true;
+    }
+
+
+    public ArrayList<byte[]> locateTransaction(String string, Block b){
         InnerNode root = b.getRootNode();
+        ArrayList<byte[]> path = new ArrayList<>();
 
-        if(root == null) return "";
+        if(root == null) return path;
 
         // Stack<InnerNode> stack = new Stack<InnerNode>();
         InnerNode curr = root;
-        ArrayList<byte[]> path = new ArrayList<>();
         path.add(curr.getSHA());
         while(!curr.isLeafNode()){
             
+            //Base Case
             if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isLeafNode()){
                 String lString = ((LeafNode)curr.getLeftChild()).getString();
                 String rString = ((LeafNode)curr.getRightChild()).getString();
@@ -194,13 +239,11 @@ public class Validator implements java.io.Serializable {
                     path.add(curr.getRightChild().getSHA());
                     //This is target we found
                     path.add(curr.getLeftChild().getSHA());
-                    path.add(new byte[0]);
                 } else if(string.equals(rString)){
                     System.out.println("Found target: " + rString + " as right leafNode");
                     path.add(curr.getLeftChild().getSHA());
                     //This is target we found
                     path.add(curr.getRightChild().getSHA());
-                    path.add(new byte[0]);
 
                 }
                 break;
@@ -214,11 +257,10 @@ public class Validator implements java.io.Serializable {
                     path.add(curr.getRightChild().getSHA());
                     //This is target we found
                     path.add(curr.getLeftChild().getSHA());
-                    path.add(new byte[0]);
 
                 }
                 break;
-            }
+            } 
 
             String lLabel = curr.getLeftChildLabel();
             // String rLabel = curr.getRightChildLabel();
@@ -244,9 +286,10 @@ public class Validator implements java.io.Serializable {
             }
         }
 
-        System.out.println(path.toString());
-
-        return "";
+        // System.out.println(path.toString());
+        
+        Collections.reverse(path);
+        return path;
 
     }
 
@@ -257,7 +300,7 @@ public class Validator implements java.io.Serializable {
 
 
 
-    public static void main (String[] args){
+    public static void main (String[] args) throws NoSuchAlgorithmException{
         // System.out.println("Test");
 
         FileInputStream fis = null;
@@ -281,10 +324,10 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
-            ArrayList<Block> badBlockchain = new ArrayList<Block>();
-            badBlockchain = (ArrayList<Block>)blocks.clone();
+            // ArrayList<Block> badBlockchain = new ArrayList<Block>();
+            // badBlockchain = (ArrayList<Block>)blocks.clone();
 
-            generateBadBlockchain(badBlockchain);
+            // generateBadBlockchain(badBlockchain);
 
             
 
