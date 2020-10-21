@@ -207,7 +207,6 @@ public class Block implements java.io.Serializable{
         
         q.add(node);
         while (!q.isEmpty()) {
-            p++;
             InnerNode curr = (InnerNode)q.pollLast();
             if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
                 InnerNode leftChild = (InnerNode)curr.getLeftChild();
@@ -223,7 +222,6 @@ public class Block implements java.io.Serializable{
             }                        
         }
         for(LeafNode curr: q_leafs){
-            p++;
             ArrayList<String> stringAndHash = new ArrayList<>();
             stringAndHash.add(curr.getString());
             // System.out.println(stringAndHash.add(curr.getString()));

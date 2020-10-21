@@ -16,6 +16,7 @@ import cse297.Tree.*;
 
 public class Validator implements java.io.Serializable {
     
+    Map<String,Block> indexStructure;
     public Validator(){
 
     }
@@ -111,23 +112,8 @@ public class Validator implements java.io.Serializable {
         return false;
     }
 
-    public static boolean inchain(String string, ArrayList<Block> blockChain){
-        
-        for (int i = 0; i < blockChain.size(); i++){
-            System.out.println("Searching in Root Hash: " + blockChain.get(i).getRootHash());
-            blockSearch(string,blockChain.get(i));
-        }
-        return true;
 
-    }
-
-    public static boolean blockSearch(String string, Block block){
-        System.out.println("Searching for term: " + string);
-        System.out.println("Tree: " + block.getTree());
-            
-        return true;
-
-    }
+    
 
     public static void generateBadBlockchain(ArrayList<Block> BadBlockChain) throws NoSuchAlgorithmException{
         String s = "rdlkhregtht34t";
@@ -154,20 +140,41 @@ public class Validator implements java.io.Serializable {
 
 
     public Map<String,Block> generateIndexStructure(ArrayList<Block> blocks){
-        Map<String,Block> map = new HashMap<>();
+        Map<String,Block> map = new HashMap<String, Block>();
         for(Block b: blocks){
-            
             List<List<String>> blockInfo = b.getTransactions(b);
             for(List<String> stringAndHash: blockInfo){
                 map.put(stringAndHash.get(0), b);
                 //System.out.println(stringAndHash.get(0)+ "  -->  " + b.getRootHash());
             }
         }
-
-        // map.forEach((key, value) -> { 
-        //     System.out.println(value.getRootHash());
-        // });
+        this.indexStructure = map;
         return map;
+    }
+
+    //When adding a block to structure
+    public Map<String,Block> updateIndexStructure(Block block){
+        List<List<String>> blockInfo = b.getTransactions(b);
+        for(List<String> stringAndHash: blockInfo){
+            this.indexStructure.put(stringAndHash.get(0), b);
+        }
+    }
+
+    public static boolean inchain(String string, ArrayList<Block> blockChain){
+        
+        for (int i = 0; i < blockChain.size(); i++){
+            System.out.println("Searching in Root Hash: " + blockChain.get(i).getRootHash());
+            blockSearch(string,blockChain.get(i));
+        }
+        return true;
+
+    }
+
+    public static boolean blockSearch(String string, Block block){
+        System.out.println("Searching for term: " + string);
+        System.out.println("Tree: " + block.getTree());
+            
+        return true;
     }
 
     
@@ -204,7 +211,6 @@ public class Validator implements java.io.Serializable {
 
             generateBadBlockchain(badBlockchain);
 
-            // inchain(string, blocks);
             
 
             ois.close();
@@ -213,8 +219,8 @@ public class Validator implements java.io.Serializable {
             e.printStackTrace();
         }
 
-        validate.validateBlockChain(blocks);
         validate.generateIndexStructure(blocks);
+        validate.validateBlockChain(blocks);
 
     }
 
