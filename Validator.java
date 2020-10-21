@@ -47,17 +47,46 @@ public class Validator implements java.io.Serializable {
     } 
 
 
-    public boolean validateBlockChain(ArrayList<Block> blockChain){
+    public boolean validateBlockChain(ArrayList<Block> blockChain) throws NoSuchAlgorithmException{
+       // serializedBlocks
+        boolean valid = true;
+        int c = 0;
+        do {
+            Block block = blockChain.get(c);
+            System.out.println("Checking Block: " + block);
+            // System.out.println();
+            if(block.getPrevHash().equals("0")  && (block.getRootNode().getSHAString().equals(block.getRootHash()))){
+                System.out.println("block.getPrevHash(): " + block.getPrevHash());
+                System.out.println(block + " is valid");
+                System.out.println();
+                c++;
+            } else if (block.getPrevHash().equals(blockChain.get(c-1).calculateBlockHash())  && (block.getRootNode().getSHAString().equals(block.getRootHash()))){
+                System.out.println(("block.getRootNode().getSHAString(): " + block.getRootNode().getSHAString()));
+                System.out.println("block.getRootHash: " + block.getRootHash());
+                System.out.println(block + " is valid");
+                System.out.println();
+                c++;
+            } else {
 
-        return true;
+                System.out.println("Check 1");
+                System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
+                System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
+                System.out.println("Check 2");
+                System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
+                System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
+                System.out.println(block + " is not valid");
+                System.out.println();
+                return false;
+            }
+        }while(c < blockChain.size());
+
+       return valid;
+       
     }
 
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
 
         System.out.println("Root hash: " + block.getRootHash());
-        // byte[] blockRootSHA = block.getRootHash();  //Block stored rootHash
-        // byte[] blockTreeRootSha = block.getRootNode().getSHA();  //Hahs value of root node in Merkle Tree
-        // if(!Arrays.equals(blockRootSHA, blockTreeRootSha)) return false;
 
         boolean rootValid = this.checkMerkleRoot(block.getRootNode());
         return rootValid;
@@ -175,7 +204,7 @@ public class Validator implements java.io.Serializable {
 
 
 
-    public static void main (String[] args){
+    public static void main (String[] args) throws NoSuchAlgorithmException{
         // System.out.println("Test");
 
         FileInputStream fis = null;
@@ -199,10 +228,10 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
-            ArrayList<Block> badBlockchain = new ArrayList<Block>();
-            badBlockchain = (ArrayList<Block>)blocks.clone();
+            // ArrayList<Block> badBlockchain = new ArrayList<Block>();
+            // badBlockchain = (ArrayList<Block>)blocks.clone();
 
-            generateBadBlockchain(badBlockchain);
+            //generateBadBlockchain(badBlockchain);
 
             // inchain(string, blocks);
             
@@ -212,8 +241,7 @@ public class Validator implements java.io.Serializable {
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-        validate.validateBlockChain(blocks);
+        System.out.println("Valid Blockchain: " + validate.validateBlockChain(blocks));
         validate.generateIndexStructure(blocks);
 
     }
