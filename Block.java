@@ -35,15 +35,15 @@ public class Block implements java.io.Serializable{
         this.mineBlock();
     }
 
-    public Block clone() {
+    public Block clone() throws NoSuchAlgorithmException{
         Block b = new Block();
-        b.prevHash = this.prevHash;
-        b.fileName = this.fileName;
-        b.target = this.target;
-        b.nonce = this.nonce;
-        b.tree = this.tree;
-        b.root = this.tree.getRoot();
-        b.rootHash = toHexString(this.root.getSHA());
+        b.prevHash = this.getPrevHash();
+        b.fileName = this.getFileName();
+        b.target = this.getTarget();
+        b.nonce = this.getNonce();
+        b.tree = this.getTree();
+        b.root = this.getTree().getRoot();
+        b.rootHash = toHexString(b.root.getSHA());
         b.mineBlock();
         return b;
     }
@@ -61,6 +61,16 @@ public class Block implements java.io.Serializable{
 
     public Block() {}
 
+    //accessors
+
+    public byte[] getTarget(){
+        return this.target;
+    }
+
+    public String getPrevHash(){
+        return this.prevHash;
+    }
+
     public String getRootHash(){
         return this.rootHash;
     }
@@ -76,6 +86,12 @@ public class Block implements java.io.Serializable{
     public Tree getTree(){
         return this.tree;
     }
+
+    public int getNonce() {
+        return this.nonce;
+    }
+
+
 
     //Used for testing invalid blocks 
     public void setRootHash(String newHash) throws NoSuchAlgorithmException{
