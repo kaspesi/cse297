@@ -221,13 +221,16 @@ public class Block implements java.io.Serializable{
 
             }                        
         }
+        ArrayList<String> leafStrings = new ArrayList<>();
         for(LeafNode curr: q_leafs){
             ArrayList<String> stringAndHash = new ArrayList<>();
             stringAndHash.add(curr.getString());
+            leafStrings.add(curr.getString());
             // System.out.println(stringAndHash.add(curr.getString()));
             stringAndHash.add(curr.getSHAString());
             leafTransactionStrings.add(stringAndHash);
-        }   
+        }
+        System.out.println("Leaf Strings:" + leafStrings.toString());   
 
 
         return leafTransactionStrings;

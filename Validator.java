@@ -145,6 +145,7 @@ public class Validator implements java.io.Serializable {
             List<List<String>> blockInfo = b.getTransactions(b);
             for(List<String> stringAndHash: blockInfo){
                 map.put(stringAndHash.get(0), b);
+                System.out.println(stringAndHash.get(0));
             }
         }
         this.indexStructure = map;
@@ -159,22 +160,15 @@ public class Validator implements java.io.Serializable {
         }
     }
 
-    public static boolean inchain(String string, ArrayList<Block> blockChain){
+    public boolean inchain(String string, ArrayList<Block> blockChain, boolean inChain){
         
-        for (int i = 0; i < blockChain.size(); i++){
-            System.out.println("Searching in Root Hash: " + blockChain.get(i).getRootHash());
-            blockSearch(string,blockChain.get(i));
-        }
-        return true;
+        Block block = this.indexStructure.get(string);
+        System.out.println(block.getRootHash());
 
+        return inChain;
     }
 
-    public static boolean blockSearch(String string, Block block){
-        System.out.println("Searching for term: " + string);
-        System.out.println("Tree: " + block.getTree());
-            
-        return true;
-    }
+
 
     
 
@@ -220,6 +214,7 @@ public class Validator implements java.io.Serializable {
 
         validate.generateIndexStructure(blocks);
         validate.validateBlockChain(blocks);
+        //validate.inchain("q035db9c99c5luxk5az6", blocks, true);
 
     }
 
