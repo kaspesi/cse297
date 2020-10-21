@@ -145,7 +145,6 @@ public class Validator implements java.io.Serializable {
             List<List<String>> blockInfo = b.getTransactions(b);
             for(List<String> stringAndHash: blockInfo){
                 map.put(stringAndHash.get(0), b);
-                //System.out.println(stringAndHash.get(0)+ "  -->  " + b.getRootHash());
             }
         }
         this.indexStructure = map;
@@ -153,10 +152,10 @@ public class Validator implements java.io.Serializable {
     }
 
     //When adding a block to structure
-    public Map<String,Block> updateIndexStructure(Block block){
-        List<List<String>> blockInfo = b.getTransactions(b);
+    public void updateIndexStructure(Block block){
+        List<List<String>> blockInfo = block.getTransactions(block);
         for(List<String> stringAndHash: blockInfo){
-            this.indexStructure.put(stringAndHash.get(0), b);
+            this.indexStructure.put(stringAndHash.get(0), block);
         }
     }
 
