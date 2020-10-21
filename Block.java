@@ -74,11 +74,6 @@ public class Block implements java.io.Serializable{
         this.rootHash = toHexString(this.root.getSHA());
     }
 
-
-    public String getHash(){
-        return this.rootHash;
-    }
-
     public String toHexString(byte[] hash)  { 
         BigInteger number = new BigInteger(1, hash);  
         StringBuilder hexString = new StringBuilder(number.toString(16));  

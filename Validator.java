@@ -17,6 +17,7 @@ import cse297.Tree.*;
 public class Validator implements java.io.Serializable {
     
     Map<String,Block> indexStructure;
+    
     public Validator(){
 
     }
@@ -245,12 +246,6 @@ public class Validator implements java.io.Serializable {
         return path;
 
     }
-
-
-
-    
-
-
 
 
     public static void main (String[] args) throws NoSuchAlgorithmException{
