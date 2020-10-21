@@ -63,21 +63,21 @@ public class Validator implements java.io.Serializable {
         do {
             Block block = blockChain.get(c);
             System.out.println("Checking Block: " + block);
-            if(block.getPrevHash().equals("0")  && (block.getRootNode().getSHAString().equals(block.getRootHash()))){
+            if(block.getPrevHash().equals("0")  && (block.getRootNode().getSHAString().equals(block.getRootHash())) && validateBlock(block)){
                 System.out.println(block + " is valid");
                 System.out.println();
                 c++;
-            } else if (block.getPrevHash().equals(blockChain.get(c-1).calculateBlockHash())  && (block.getRootNode().getSHAString().equals(block.getRootHash()))){
+            } else if (block.getPrevHash().equals(blockChain.get(c-1).calculateBlockHash())  && (block.getRootNode().getSHAString().equals(block.getRootHash())) && validateBlock(block)) {
                 System.out.println(block + " is valid");
                 System.out.println();
                 c++;
             } else {
-                // System.out.println("Check 1");
-                // System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
-                // System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
-                // System.out.println("Check 2");
-                // System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
-                // System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
+                System.out.println("Check 1");
+                System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
+                System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
+                System.out.println("Check 2");
+                System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
+                System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
                 System.out.println(block + " is not valid");
                 System.out.println();
                 return false;
@@ -86,7 +86,6 @@ public class Validator implements java.io.Serializable {
 
        return valid;
        
-       return true;
     }
 
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
