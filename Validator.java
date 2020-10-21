@@ -145,7 +145,7 @@ public class Validator implements java.io.Serializable {
             List<List<String>> blockInfo = b.getTransactions(b);
             for(List<String> stringAndHash: blockInfo){
                 map.put(stringAndHash.get(0), b);
-                System.out.println(stringAndHash.get(0));
+                // System.out.println(stringAndHash.get(0));
             }
         }
         this.indexStructure = map;
@@ -163,9 +163,91 @@ public class Validator implements java.io.Serializable {
     public boolean inchain(String string, ArrayList<Block> blockChain, boolean inChain){
         
         Block block = this.indexStructure.get(string);
+        // List<List<String>> blockInfo = block.getTransactions(block);
+        // for(List<String> stringAndHash: blockInfo){
+        //     System.out.println(stringAndHash.get(0));
+        // }
+        locateTransaction(string, block);
         System.out.println(block.getRootHash());
 
         return inChain;
+    }
+
+
+    public String locateTransaction(String string, Block b){
+        InnerNode root = b.getRootNode();
+
+        if(root == null) return "";
+
+        // Stack<InnerNode> stack = new Stack<InnerNode>();
+        InnerNode curr = root;
+        ArrayList<byte[]> path = new ArrayList<>();
+        path.add(curr.getSHA());
+        while(!curr.isLeafNode()){
+            
+            if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isLeafNode()){
+                String lString = ((LeafNode)curr.getLeftChild()).getString();
+                String rString = ((LeafNode)curr.getRightChild()).getString();
+                if(string.equals(lString)){
+                    System.out.println("Checking for target" + string);
+                    System.out.println("Found target: " + lString + " as left leafNode");
+                    path.add(curr.getRightChild().getSHA());
+                    //This is target we found
+                    path.add(curr.getLeftChild().getSHA());
+                    path.add(new byte[0]);
+                } else if(string.equals(rString)){
+                    System.out.println("Found target: " + rString + " as right leafNode");
+                    path.add(curr.getLeftChild().getSHA());
+                    //This is target we found
+                    path.add(curr.getRightChild().getSHA());
+                    path.add(new byte[0]);
+
+                }
+                break;
+
+
+            } else if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
+                String lString = ((LeafNode)curr.getLeftChild()).getString();
+                if(string.equals(lString)){
+                    System.out.println("Checking for target" + string);
+                    System.out.println("Found target: " + lString + " as left leafNode");
+                    path.add(curr.getRightChild().getSHA());
+                    //This is target we found
+                    path.add(curr.getLeftChild().getSHA());
+                    path.add(new byte[0]);
+
+                }
+                break;
+            }
+
+            String lLabel = curr.getLeftChildLabel();
+            // String rLabel = curr.getRightChildLabel();
+            if(string.compareTo(lLabel) > 0) { //String is greater than left label, traverse right side of tree
+                if(!curr.getRightChild().isEmptyNode()){
+                    path.add(curr.getLeftChild().getSHA());
+                    path.add(curr.getRightChild().getSHA());
+                    curr = (InnerNode)curr.getRightChild();
+                    
+                } else {
+                    path.add(curr.getRightChild().getSHA());
+                    path.add(curr.getLeftChild().getSHA());
+                    curr = (InnerNode)curr.getLeftChild();
+                    
+                }
+            } else{
+                path.add(curr.getRightChild().getSHA());
+                path.add(curr.getLeftChild().getSHA());
+                curr = (InnerNode)curr.getLeftChild();
+                
+                // System.out.println("Exiting traverse");
+                // return "";
+            }
+        }
+
+        System.out.println(path.toString());
+
+        return "";
+
     }
 
 
@@ -214,7 +296,7 @@ public class Validator implements java.io.Serializable {
 
         validate.generateIndexStructure(blocks);
         validate.validateBlockChain(blocks);
-        //validate.inchain("q035db9c99c5luxk5az6", blocks, true);
+        validate.inchain("zulr6clwo7d1if8aylw6", blocks, true);
 
     }
 
