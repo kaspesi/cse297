@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 import cse297.Block;
 import cse297.Tree.*;
-// import jdk.internal.jimage.ImageReader.Node;
+
 
 public class Validator implements java.io.Serializable {
     
@@ -33,11 +33,7 @@ public class Validator implements java.io.Serializable {
         ByteArrayOutputStream outputStream = null;
         MessageDigest md = null;
         byte[] jointHash = null;
-        // byte[] oneHash = null;
-        // byte[] twoHash = null;
         try{
-            // oneHash = one.getSHA();
-            // twoHash = two.getSHA();
             outputStream = new ByteArrayOutputStream();
             outputStream.write(one);
             outputStream.write(two);
@@ -51,46 +47,32 @@ public class Validator implements java.io.Serializable {
     } 
 
     public byte[] getSHA(String input) throws NoSuchAlgorithmException {  
-        MessageDigest  md = MessageDigest.getInstance("SHA-256");  ; 
+        MessageDigest  md = MessageDigest.getInstance("SHA-256");  
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
-
+    // Validates each block in the block chain and calculates the hash of the previous block and compares it to the value stored for previous hash 
+    // Verifies the correctness of each blocks Merkle tree 
     public boolean validateBlockChain(ArrayList<Block> blockChain) throws NoSuchAlgorithmException{
-       // serializedBlocks
         boolean valid = true;
-        int c = 0;
-        do {
-            Block block = blockChain.get(c);
-            System.out.println("Checking Block: " + block);
-            if(block.getPrevHash().equals("0")  && (block.getRootNode().getSHAString().equals(block.getRootHash())) && validateBlock(block)){
-                System.out.println(block + " is valid");
-                System.out.println();
-                c++;
-            } else if (block.getPrevHash().equals(blockChain.get(c-1).calculateBlockHash())  && (block.getRootNode().getSHAString().equals(block.getRootHash())) && validateBlock(block)) {
-                System.out.println(block + " is valid");
-                System.out.println();
-                c++;
-            } else {
-                System.out.println("Check 1");
-                System.out.println("block.getPrevHash(): \t\t\t\t" + block.getPrevHash());
-                System.out.println("blockChain.get(c-1).calculateBlockHash(): \t" + blockChain.get(c-1).calculateBlockHash());
-                System.out.println("Check 2");
-                System.out.println("block.getRootNode().getSHAString(): \t\t" + block.getRootNode().getSHAString());
-                System.out.println("block.getRootHash: \t\t\t\t" + block.getRootHash());
-                System.out.println(block + " is not valid");
-                System.out.println();
+        if(blockChain.size() == 0) return false;
+        Block block = blockChain.get(0);
+        if(!block.getPrevHash().equals("0")  || !(block.getRootNode().getSHAString().equals(block.getRootHash())) || !validateBlock(block)){
+            return false;
+        }
+        for(int i = 1; i < blockChain.size(); i++){
+            block = blockChain.get(i);
+            if (!block.getPrevHash().equals(blockChain.get(i-1).calculateBlockHash())  || !(block.getRootNode().getSHAString().equals(block.getRootHash())) || !validateBlock(block)) {
                 return false;
             }
-        }while(c < blockChain.size());
-
-       return valid;
-       
+        }
+       return true;
     }
 
+    // Validates the blocks merkle tree by calling the recurssive checkMerkleRoot method to 
+    // ensure that the root hash can be calculated by recussively hashing all the sibbling nodes
+    // off the merkel tree.
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
-
-        System.out.println("Root hash: " + block.getRootHash());
 
         boolean rootValid = this.checkMerkleRoot(block.getRootNode());
         return rootValid;
@@ -106,21 +88,15 @@ public class Validator implements java.io.Serializable {
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)leftChild) && checkMerkleRootHelper((InnerNode)leftChild);
         } else if(leftChild.isLeafNode() && !rightChild.isLeafNode()){ //Left child is leafNode
-            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)leftChild);
         } else if(!leftChild.isLeafNode() && rightChild.isLeafNode()){ //Right child is the leafNode
-            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper((InnerNode)rightChild);
         } else {  //BOTH LEAF NODES
             if(leftChild == null || rightChild == null) return false;
-            // System.out.println("LeftNode TreeNode? " + leftChild.isLeafNode());
-            // System.out.println("RightNode TreeNode? " + rightChild.isLeafNode());
             byte[] currentSHA = node.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             return Arrays.equals(currentSHA, childrenSHA);
@@ -137,8 +113,6 @@ public class Validator implements java.io.Serializable {
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
             String currSHAStr = new String(currentSHA, StandardCharsets.UTF_8);
             String childSHAStr = new String(childrenSHA, StandardCharsets.UTF_8);
-            System.out.println("RootSHA: " + currSHAStr);
-            System.out.println("ChildrenSHA: " + childSHAStr);
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper(leftChild) && checkMerkleRootHelper(leftChild);
         }
         return false;
@@ -146,31 +120,17 @@ public class Validator implements java.io.Serializable {
 
 
     
-
-    public static void generateBadBlockchain(ArrayList<Block> BadBlockChain) throws NoSuchAlgorithmException{
+    // Uses method in block class to change the root merkle has to one which is invalid 
+    public void generateBadBlockchain(ArrayList<Block> BadBlockChain) throws NoSuchAlgorithmException{
         String s = "rdlkhregtht34t";
-        System.out.println("Generating Bad Blockchain\n");
         for (int i = 0; i < BadBlockChain.size();i++){
-            System.out.println("Old Hash: " + BadBlockChain.get(i).getRootHash());
             BadBlockChain.get(i).setRootHash(s+i);
-            System.out.println("New Hash: " + BadBlockChain.get(i).getRootHash());
-        }
-        System.out.println();
-        
-        try{
-            FileOutputStream fos = new FileOutputStream("badBlocks");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(BadBlockChain);
-            oos.close();
-            fos.close();
-        }  catch(Exception e) {
-            e.printStackTrace();
-        }
-        //return BadBlockChain;
-        
+        }        
     }
 
 
+    //Uses HashMap to map all transaction strings to the most recent block in which they occur 
+    //Returns this HashMap as the indexing structure
     public Map<String,Block> generateIndexStructure(ArrayList<Block> blocks){
         Map<String,Block> map = new HashMap<String, Block>();
         for(Block b: blocks){
@@ -184,7 +144,8 @@ public class Validator implements java.io.Serializable {
         return map;
     }
 
-    //When adding a block to structure
+    //When adding a block to the blockchain, updates the index structure to make sure that the transaction Strings
+    //map to the most recently added block.
     public void updateIndexStructure(Block block){
         List<List<String>> blockInfo = block.getTransactions(block);
         for(List<String> stringAndHash: blockInfo){
@@ -192,63 +153,41 @@ public class Validator implements java.io.Serializable {
         }
     }
 
-    public boolean inchain(String string, ArrayList<Block> blockChain, boolean inChain) throws NoSuchAlgorithmException{
+
+    //inchain method returns the Merkle Proof as an array of SHA-256 byte arrays
+    //If the tree does not contain verifiable path the membership result will print out "false" 
+    public ArrayList<byte[]> inchain(String string, ArrayList<Block> blockChain, boolean inChain) throws NoSuchAlgorithmException{
         
         Block block = this.indexStructure.get(string);
-        // List<List<String>> blockInfo = block.getTransactions(block);
-        // for(List<String> stringAndHash: blockInfo){
-        //     System.out.println(stringAndHash.get(0));
-        // }
         ArrayList<byte[]> path = locateTransaction(string, block);
         boolean result = verifyTransactionPath(path);
-        System.out.println("Verifying Transaction Path Result :" + result);
-
-        // System.out.println(block.getRootHash());
-
-        return inChain;
+        System.out.println("Proof of membership result: " + result);
+        return path;
     }
 
+    //Validates the result of the Merkle Proof, recalculating the hashes to ensure the result matches the merkel root 
+    //This validates that the path from the root to the leaf node as well as all their sibblings hash to same value as tree root
     public boolean verifyTransactionPath(ArrayList<byte[]> path) throws NoSuchAlgorithmException{
-        System.out.println(path.size());
-        for(byte[] hash: path){
-            System.out.println(toHexString(hash));
-        }
-        System.out.println("\n\n");
+
         for(int i = 0; i < path.size() -2; i+=2){
-            System.out.println(toHexString(path.get(i)));
-            System.out.println(toHexString(path.get(i+1)));
 
             byte[] sibblingHASH = getSHAFromNodes(path.get(i+1), path.get(i));
-            // byte[] sibblingHASH2 = getSHAFromNodes(path.get(i), path.get(i+1));
-
-            // if(!Arrays.equals(path.get(i+2), sibblingHASH) && !Arrays.equals(path.get(i+2), sibblingHASH2)) {
             if(!Arrays.equals(path.get(i+2), sibblingHASH)) {
-                System.out.println("\n\n"+toHexString(path.get(i)));
-                System.out.println(toHexString(path.get(i+1)));
-                System.out.println(toHexString(sibblingHASH));
-                // System.out.println(toHexString(sibblingHASH2));
-
-                System.out.println("not equal to:");
-                System.out.println(toHexString(path.get(i+2)));
                 return false;
             }
-            System.out.println(toHexString(sibblingHASH));
-            System.out.println(toHexString(path.get(i+2)));
-            System.out.println("\n\n");
-
         }
-
         return true;
     }
 
 
+    //Traverses the Merkle Tree to find the path from root to the leaf node of the transaction
+    //Returns an array of the Hashes as well as each sibbling node.
     public ArrayList<byte[]> locateTransaction(String string, Block b){
         InnerNode root = b.getRootNode();
         ArrayList<byte[]> path = new ArrayList<>();
 
         if(root == null) return path;
 
-        // Stack<InnerNode> stack = new Stack<InnerNode>();
         InnerNode curr = root;
         path.add(curr.getSHA());
         while(!curr.isLeafNode()){
@@ -258,13 +197,10 @@ public class Validator implements java.io.Serializable {
                 String lString = ((LeafNode)curr.getLeftChild()).getString();
                 String rString = ((LeafNode)curr.getRightChild()).getString();
                 if(string.equals(lString)){
-                    System.out.println("Checking for target" + string);
-                    System.out.println("Found target: " + lString + " as left leafNode");
                     path.add(curr.getRightChild().getSHA());
                     //This is target we found
                     path.add(curr.getLeftChild().getSHA());
                 } else if(string.equals(rString)){
-                    System.out.println("Found target: " + rString + " as right leafNode");
                     path.add(curr.getLeftChild().getSHA());
                     //This is target we found
                     path.add(curr.getRightChild().getSHA());
@@ -276,10 +212,7 @@ public class Validator implements java.io.Serializable {
             } else if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
                 String lString = ((LeafNode)curr.getLeftChild()).getString();
                 if(string.equals(lString)){
-                    System.out.println("Checking for target" + string);
-                    System.out.println("Found target: " + lString + " as left leafNode");
                     path.add(curr.getRightChild().getSHA());
-                    //This is target we found
                     path.add(curr.getLeftChild().getSHA());
 
                 }
@@ -287,7 +220,6 @@ public class Validator implements java.io.Serializable {
             } 
 
             String lLabel = curr.getLeftChildLabel();
-            // String rLabel = curr.getRightChildLabel();
             if(string.compareTo(lLabel) > 0) { //String is greater than left label, traverse right side of tree
                 if(!curr.getRightChild().isEmptyNode()){
                     path.add(curr.getLeftChild().getSHA());
@@ -305,12 +237,9 @@ public class Validator implements java.io.Serializable {
                 path.add(curr.getLeftChild().getSHA());
                 curr = (InnerNode)curr.getLeftChild();
                 
-                // System.out.println("Exiting traverse");
-                // return "";
             }
         }
 
-        // System.out.println(path.toString());
         
         Collections.reverse(path);
         return path;
@@ -329,42 +258,58 @@ public class Validator implements java.io.Serializable {
 
         FileInputStream fis = null;
         String fileName;
-        ArrayList<Block> blocks = new ArrayList<>();;
+        ArrayList<Block> blockChain = new ArrayList<>();;
         Validator validate = new Validator();
         try {
             
             Scanner myObj = new Scanner(System.in);
-            System.out.println("Please enter file of serialized blockchain");
+            System.out.println("\nPlease enter file of serialized blockchain");
             fileName = myObj.nextLine();
             fis = new FileInputStream(fileName);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            blocks = (ArrayList<Block>)ois.readObject();
-            // generateBadBlockchain(blocks);
-            System.out.println("\nDeserialized Data:\n");
-            for(int i = 0; i < blocks.size();i++){
-                System.out.println("Block " + (i) + ": " + blocks.get(i));  
-                boolean valid = validate.validateBlock(blocks.get(i));
-                System.out.println("Block result: " + valid);
-                System.out.println();
-            }
-            System.out.println();
-            // ArrayList<Block> badBlockchain = new ArrayList<Block>();
-            // badBlockchain = (ArrayList<Block>)blocks.clone();
-
-            // generateBadBlockchain(badBlockchain);
-
-            
-
+            blockChain = (ArrayList<Block>)ois.readObject();
             ois.close();
             fis.close();
         } catch(Exception e) {
             e.printStackTrace();
         }
 
-        validate.generateIndexStructure(blocks);
-        validate.validateBlockChain(blocks);
-        validate.inchain("zulr6clwo7d1if8aylw6", blocks, true);
+        boolean result = false;
+        boolean stringResult = false;
+        ArrayList<byte[]> hashProof = null;
+        String toVerify = "";
+        validate.generateIndexStructure(blockChain);
+        result = validate.validateBlockChain(blockChain);
+        
+        System.out.println("\n### Validating Blockchain\n");
+
+        System.out.println("Blockchain Verified: " + result);
+
+        toVerify = "zulr6clwo7d1if8aylw6";
+        System.out.println("Verifying Transaction String: "  + toVerify);
+        hashProof = validate.inchain("zulr6clwo7d1if8aylw6", blockChain, true);
+        System.out.println("Hash List Proof of Membership");
+        for(byte[] hash: hashProof) System.out.print(validate.toHexString(hash) + ", ");
+        
+        System.out.println("\n\n### Invalidating Blockchain");
+
+        System.out.println("\n### Validating Invalidated Blockchain\n");
+
+        validate.generateBadBlockchain(blockChain);
+        result = validate.validateBlockChain(blockChain);
+
+        System.out.println("Blockchain Verified: " + result);
+
+        toVerify = "zulr6clwo7d1if8aylw6";
+        System.out.println("Verifying Transaction String: "  + toVerify);
+        hashProof = validate.inchain("zulr6clwo7d1if8aylw6", blockChain, true);
+        System.out.println("Hash List Proof of Membership");
+        for(byte[] hash: hashProof) System.out.print(validate.toHexString(hash) + ", ");
+        System.out.println("\n");
+
 
     }
+
+    
 
 }

@@ -115,6 +115,9 @@ public class Block implements java.io.Serializable{
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
+    
+
+    //Calcualtes hash of contents of block 
     public String calculateBlockHash() throws NoSuchAlgorithmException{
         String stringTarget = new String(target, StandardCharsets.UTF_8);
         String input = prevHash + rootHash + Long.toString(timeStamp) + stringTarget + Integer.toString(nonce);

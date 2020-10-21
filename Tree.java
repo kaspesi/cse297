@@ -424,7 +424,6 @@ public class Tree implements java.io.Serializable {
             if (node == null) {
                 return " ";
             }
-            
             q.add(node);
             while (!q.isEmpty()) {
                 p++;
@@ -441,13 +440,10 @@ public class Tree implements java.io.Serializable {
                     } else {
                         printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
                     }
-                    //System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q.addFirst((InnerNode)curr.getLeftChild());
                     if(!rightIsEmpty) q.addFirst((InnerNode)curr.getRightChild());
-                    
-
                 } else {
                     boolean rightIsEmpty = false;
                     if(curr.getRightChild().isEmptyNode()) rightIsEmpty = true;
@@ -460,25 +456,17 @@ public class Tree implements java.io.Serializable {
                     } else {
                         printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
                     }
-                    
-                    // System.out.println(leftChild.getString());
-                    //System.out.println(rightChild.getString());
-                    // System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q_leafs.add((LeafNode)curr.getLeftChild());
                     if(!rightIsEmpty) q_leafs.add((LeafNode)curr.getRightChild());
 
                 }
-                
-                
             }
 
             for(LeafNode curr: q_leafs){
                 p++;
                 String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
-
-                // System.out.println(printStr);
                 if(!justString) out.write(printStr);
                 outString.append(printStr);
             }
@@ -486,13 +474,11 @@ public class Tree implements java.io.Serializable {
                 retString = out.toString();
                 out.close();
             }
-
             return outString.toString();
         }
         catch(Exception e){
             e.printStackTrace();
         }
-
         return outString.toString();
         
     }
