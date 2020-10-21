@@ -35,6 +35,19 @@ public class Block implements java.io.Serializable{
         this.mineBlock();
     }
 
+    public Block clone() {
+        Block b = new Block();
+        b.prevHash = this.prevHash;
+        b.fileName = this.fileName;
+        b.target = this.target;
+        b.nonce = this.nonce;
+        b.tree = this.tree;
+        b.root = this.tree.getRoot();
+        b.rootHash = toHexString(this.root.getSHA());
+        b.mineBlock();
+        return b;
+    }
+
     public String[] getHeaderInfo(){
         String[] headerInfo = new String[5];
         headerInfo[0] = this.prevHash;

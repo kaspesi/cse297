@@ -324,6 +324,12 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
+
+            ArrayList<Block> badBlockChain = new ArrayList<Block>();
+            for (Block b : blocks) {
+                badBlockChain.add(b.clone());
+            }
+
             // ArrayList<Block> badBlockchain = new ArrayList<Block>();
             // badBlockchain = (ArrayList<Block>)blocks.clone();
 
