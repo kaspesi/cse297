@@ -224,7 +224,11 @@ public class Block implements java.io.Serializable{
             } else if(!curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
                 InnerNode leftChild = (InnerNode)curr.getLeftChild();
                 q.addFirst(leftChild);
-            } else {
+            } else if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
+                LeafNode leftChild = (LeafNode)curr.getLeftChild();
+                q_leafs.add(leftChild);
+            } 
+            else {
                 LeafNode leftChild = (LeafNode)curr.getLeftChild();
                 LeafNode rightChild = (LeafNode)curr.getRightChild();
                 q_leafs.add(rightChild);
@@ -242,7 +246,7 @@ public class Block implements java.io.Serializable{
             stringAndHash.add(curr.getSHAString());
             leafTransactionStrings.add(stringAndHash);
         }
-        System.out.println("Leaf Strings:" + leafStrings.toString());   
+        // System.out.println("Leaf Strings:" + leafStrings.toString());   
 
 
         return leafTransactionStrings;
