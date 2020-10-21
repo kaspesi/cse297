@@ -211,29 +211,46 @@ public class Block implements java.io.Serializable{
         
         q.add(node);
         while (!q.isEmpty()) {
-            p++;
             InnerNode curr = (InnerNode)q.pollLast();
             if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                boolean rightIsEmpty = false;
+                InnerNode rightChild = null;
+                if(curr.getRightChild().isEmptyNode()){
+                    rightIsEmpty = true;
+                }
                 InnerNode leftChild = (InnerNode)curr.getLeftChild();
-                InnerNode rightChild = (InnerNode)curr.getRightChild();
+                if(!rightIsEmpty){
+                    rightChild = (InnerNode)curr.getRightChild();
+                    q.addFirst((InnerNode)curr.getRightChild());
+                } 
                 q.addFirst((InnerNode)curr.getLeftChild());
-                q.addFirst((InnerNode)curr.getRightChild());
-            } else {
+            
+            } else if(!curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
+                InnerNode leftChild = (InnerNode)curr.getLeftChild();
+                q.addFirst(leftChild);
+            } else if(curr.getLeftChild().isLeafNode() && curr.getRightChild().isEmptyNode()){
+                LeafNode leftChild = (LeafNode)curr.getLeftChild();
+                q_leafs.add(leftChild);
+            } 
+            else {
                 LeafNode leftChild = (LeafNode)curr.getLeftChild();
                 LeafNode rightChild = (LeafNode)curr.getRightChild();
-                q_leafs.add((LeafNode)curr.getLeftChild());
-                q_leafs.add((LeafNode)curr.getRightChild());
+                q_leafs.add(rightChild);
+                q_leafs.add(leftChild);
 
-            }                        
+            }    
+                                
         }
+        ArrayList<String> leafStrings = new ArrayList<>();
         for(LeafNode curr: q_leafs){
-            p++;
             ArrayList<String> stringAndHash = new ArrayList<>();
             stringAndHash.add(curr.getString());
+            leafStrings.add(curr.getString());
             // System.out.println(stringAndHash.add(curr.getString()));
             stringAndHash.add(curr.getSHAString());
             leafTransactionStrings.add(stringAndHash);
-        }   
+        }
+        // System.out.println("Leaf Strings:" + leafStrings.toString());   
 
 
         return leafTransactionStrings;

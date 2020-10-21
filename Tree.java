@@ -61,9 +61,14 @@ public class Tree implements java.io.Serializable {
         private String rightChildLabel;
         private byte[] SHA256;
         private boolean isLeaf;
+        private boolean isEmpty;
 
         public boolean isLeafNode(){
             return this.isLeaf;
+        }
+
+        public boolean isEmptyNode(){
+            return this.isEmpty;
         }
 
         public void setLeftLabel(String leftLabel){
@@ -104,21 +109,51 @@ public class Tree implements java.io.Serializable {
         
     }
 
+    class EmptyNode extends Node{
+        private byte[]SHA256;
+        private boolean isEmpty;
+        private boolean isLeaf;
+
+        public EmptyNode(){
+            this.isEmpty = true;
+            this.SHA256 = new byte[0];
+            this.isLeaf = false;
+        }
+
+        public boolean isEmptyNode(){
+            return this.isEmpty;
+        }
+
+        public boolean isLeafNode(){
+            return this.isLeaf;
+        }
+
+        public byte[] getSHA(){
+            return this.SHA256;
+        }
+    }
+
     class LeafNode extends Node {
         
         private String str;
         private byte[] SHA256;        
         private boolean isLeaf;
+        private boolean isEmpty;
         
         public LeafNode(String str) throws NoSuchAlgorithmException{
             this.str = str;
             this.SHA256 = getSHA(str);
             this.isLeaf = true;
+            this.isEmpty = false;
         }
 
 
         public boolean isLeafNode(){
             return this.isLeaf;
+        }
+
+        public boolean isEmptyNode(){
+            return false;
         }
         
 
@@ -144,6 +179,7 @@ public class Tree implements java.io.Serializable {
         private String rightChildLabel;
         private byte[] SHA256;
         private boolean isLeaf;
+        private boolean isEmpty;
 
         public boolean isLeafNode(){
             return this.isLeaf;
@@ -155,6 +191,7 @@ public class Tree implements java.io.Serializable {
             this.rightChild = rightChild;
             // this.rightChildLabel = rightChild.getSHAString();
             this.isLeaf = false;
+            this.isEmpty = false;
             this.SHA256 = getSHAChildren(leftChild, rightChild);
         }
 
@@ -231,36 +268,56 @@ public class Tree implements java.io.Serializable {
     public InnerNode generateMerkleTree(ArrayList<String> keys) throws NoSuchAlgorithmException{
         
         LinkedList<InnerNode> q = new LinkedList<>();
+        //System.out.println("Creating tree with strings: " + keys.toString());
+        //ArrayList<String> addedToList = new ArrayList<>();
         boolean oddLeafs = false;
         int n = keys.size();
         if(n%2 != 0){
             oddLeafs = true;
-        }
+            n = n-1;
+        } 
+        
         int i = 0;
+        System.out.println("Generating tree with: " + keys.size() + " keys");
         //Generate first level of inner nodes from the leaf nodes
         for(i = 0; i < n-1; i+=2){
             LeafNode l = new LeafNode(keys.get(i));
             LeafNode r = new LeafNode(keys.get(i+1));
+            // addedToList.add(keys.get(i));
+            // addedToList.add(keys.get(i+1));
             InnerNode parent = new InnerNode(l, r);
             q.addLast(parent);
         } //Case with odd leaf nodes, we use the last one twice
         if(oddLeafs){
-            LeafNode l = new LeafNode(keys.get(n-1));
-            LeafNode r = new LeafNode(keys.get(n-1));
+            LeafNode l = new LeafNode(keys.get(n));
+            EmptyNode r = new EmptyNode();
             InnerNode parent = new InnerNode(l, r);
             q.addLast(parent);
         }
 
+        System.out.println("Added " + q.size() + " leaf nodes");
+
 
         //Continue taking children and adding parent at higher level until we reach a single root node
         while(q.size() != 1){
-
+            boolean isOdd = false;
+            if(q.size() % 2 != 0 && q.size() != 0){
+                n = q.size()-1;
+                isOdd = true;
+                System.out.println("Odd tree level, level size: " + q.size());
+            } else {
+                n = q.size();
+            }
             LinkedList<InnerNode> tempList = new LinkedList<>();
             for(i = 0; i < q.size()-1; i+=2){
                 tempList.add(new InnerNode(q.get(i), q.get(i+1)));
             }
+            if(isOdd && q.size() != 0){
+                tempList.add(new InnerNode(q.get(n), new EmptyNode()));
+            }
             q = tempList;
         }
+        System.out.println("Root SHA: " + q.get(0).getSHAString());
 
         //Return root node
         return q.get(0);
@@ -270,7 +327,17 @@ public class Tree implements java.io.Serializable {
     public String findMax(InnerNode node){
 
         while(!node.getRightChild().isLeafNode()){
-            node = (InnerNode)node.getRightChild();
+            //System.out.println("Empty Node: " + node.getRightChild().isEmptyNode());
+            if(node.getRightChild().isEmptyNode() && !node.getLeftChild().isLeafNode()){
+                System.out.println("Encounteded empty node");
+                node = (InnerNode)node.getLeftChild();
+            } else if(node.getRightChild().isEmptyNode() && node.getLeftChild().isLeafNode()){
+                //Case where left child is leafNode but odd strings so right child is empty
+                return ((LeafNode)node.getLeftChild()).getString();
+            }
+            else {
+                node = (InnerNode)node.getRightChild();
+            }
         }
         String retStr = ((LeafNode)node.getRightChild()).getString();
         return retStr;
@@ -300,7 +367,7 @@ public class Tree implements java.io.Serializable {
         while (!q.isEmpty()) {
 
             InnerNode curr = (InnerNode)q.pollLast();
-            if(!curr.getLeftChild().isLeafNode()){
+            if(!curr.getLeftChild().isLeafNode()  && !curr.getLeftChild().isEmptyNode()){
                 q.addFirst((InnerNode)curr.getLeftChild());
                 String edgeLabel = findMax((InnerNode)curr.getLeftChild());
                 curr.setLeftLabel(edgeLabel);
@@ -310,14 +377,16 @@ public class Tree implements java.io.Serializable {
                 curr.setLeftLabel(edgeLabel);
 
             }
-            if(!curr.getRightChild().isLeafNode()){
+            if(!curr.getRightChild().isLeafNode() && !curr.getRightChild().isEmptyNode()){
                 q.addFirst((InnerNode)curr.getRightChild());
                 String edgeLabel = findMin((InnerNode)curr.getRightChild());
                 curr.setRightLabel(edgeLabel);
 
             } else {
-                String edgeLabel = ((LeafNode)curr.getRightChild()).getString();
-                curr.setRightLabel(edgeLabel);
+                if(!curr.getRightChild().isEmptyNode()){
+                    String edgeLabel = ((LeafNode)curr.getRightChild()).getString();
+                    curr.setRightLabel(edgeLabel);
+                }
 
 
             }
@@ -361,25 +430,44 @@ public class Tree implements java.io.Serializable {
                 p++;
                 InnerNode curr = (InnerNode)q.pollLast();
                 if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
+                    boolean rightIsEmpty = false;
+                    if(curr.getRightChild().isEmptyNode()) rightIsEmpty = true;
                     InnerNode leftChild = (InnerNode)curr.getLeftChild();
-                    InnerNode rightChild = (InnerNode)curr.getRightChild();
-                    String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                    System.out.println(printStr);
+                    InnerNode rightChild = null;
+                    String printStr = "";
+                    if(!rightIsEmpty) {
+                        rightChild = (InnerNode)curr.getRightChild();
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    } else {
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    }
+                    //System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q.addFirst((InnerNode)curr.getLeftChild());
-                    q.addFirst((InnerNode)curr.getRightChild());
+                    if(!rightIsEmpty) q.addFirst((InnerNode)curr.getRightChild());
                     
 
                 } else {
+                    boolean rightIsEmpty = false;
+                    if(curr.getRightChild().isEmptyNode()) rightIsEmpty = true;
                     LeafNode leftChild = (LeafNode)curr.getLeftChild();
-                    LeafNode rightChild = (LeafNode)curr.getRightChild();
-                    String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
-                    System.out.println(printStr);
+                    LeafNode rightChild = null;
+                    String printStr = "";
+                    if(!rightIsEmpty){
+                        rightChild = (LeafNode)curr.getRightChild();
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    } else {
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                    }
+                    
+                    // System.out.println(leftChild.getString());
+                    //System.out.println(rightChild.getString());
+                    // System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q_leafs.add((LeafNode)curr.getLeftChild());
-                    q_leafs.add((LeafNode)curr.getRightChild());
+                    if(!rightIsEmpty) q_leafs.add((LeafNode)curr.getRightChild());
 
                 }
                 
@@ -390,7 +478,7 @@ public class Tree implements java.io.Serializable {
                 p++;
                 String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
 
-                System.out.println(printStr);
+                // System.out.println(printStr);
                 if(!justString) out.write(printStr);
                 outString.append(printStr);
             }
