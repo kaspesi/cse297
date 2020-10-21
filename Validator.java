@@ -17,6 +17,7 @@ import cse297.Tree.*;
 public class Validator implements java.io.Serializable {
     
     Map<String,Block> indexStructure;
+    
     public Validator(){
 
     }
@@ -85,7 +86,7 @@ public class Validator implements java.io.Serializable {
         }while(c < blockChain.size());
 
        return valid;
-       
+
     }
 
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
@@ -318,12 +319,6 @@ public class Validator implements java.io.Serializable {
     }
 
 
-
-    
-
-
-
-
     public static void main (String[] args) throws NoSuchAlgorithmException{
         // System.out.println("Test");
 
@@ -348,9 +343,9 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
+
             // ArrayList<Block> badBlockchain = new ArrayList<Block>();
             // badBlockchain = (ArrayList<Block>)blocks.clone();
-
             // generateBadBlockchain(badBlockchain);
 
             
