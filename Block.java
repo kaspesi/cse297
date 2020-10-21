@@ -64,10 +64,13 @@ public class Block implements java.io.Serializable{
         return this.tree;
     }
 
-    public void setHash(String newHash) throws NoSuchAlgorithmException{
-        this.rootHash = getSHA(newHash).toString();
-
+    //Used for testing invalid blocks 
+    public void setRootHash(String newHash) throws NoSuchAlgorithmException{
+        this.root.setSHA(getSHA(newHash));
+        this.rootHash = toHexString(this.root.getSHA());
     }
+
+
     public String getHash(){
         return this.rootHash;
     }
@@ -145,6 +148,8 @@ public class Block implements java.io.Serializable{
             InnerNode node = b.getRootNode();
             try {
                 String inputFileName = b.getFileName();
+                String treeOutput = b.getTree().printTree(node, null);
+
                 // System.out.println(inputFileName);
                 String[] nameParts = inputFileName.split("\\.");
                 inputFileName = nameParts[0] + ".block.out";
@@ -152,93 +157,30 @@ public class Block implements java.io.Serializable{
                 File myOut = new File(inputFileName);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(myOut.getName()));
                 myOut.createNewFile();
-                    writer.newLine();
-                    writer.write("BEGIN BLOCK");
-                    writer.newLine();
-                    writer.write("BEGIN HEADER");
-                    writer.newLine();
-                    String[] headerInfo = b.getHeaderInfo();
-                    writer.write(headerInfo[0]);
-                    writer.newLine();
-                    writer.write(headerInfo[1]);
-                    writer.newLine();
-                    writer.write(headerInfo[2]);
-                    writer.newLine();
-                    writer.write(headerInfo[3]);
-                    writer.newLine();
-                    writer.write(headerInfo[4]);
-                    writer.newLine();
-                    writer.write("END HEADER");
-                    writer.newLine();
-                    writer.newLine();
+                writer.newLine();
+                writer.write("BEGIN BLOCK");
+                writer.newLine();
+                writer.write("BEGIN HEADER");
+                writer.newLine();
+                String[] headerInfo = b.getHeaderInfo();
+                writer.write(headerInfo[0]);
+                writer.newLine();
+                writer.write(headerInfo[1]);
+                writer.newLine();
+                writer.write(headerInfo[2]);
+                writer.newLine();
+                writer.write(headerInfo[3]);
+                writer.newLine();
+                writer.write(headerInfo[4]);
+                writer.newLine();
+                writer.write("END HEADER");
+                writer.newLine();
+                writer.newLine();
+                writer.write(treeOutput);
 
-                    LinkedList<InnerNode> q = new LinkedList<>();
-                    ArrayList<LeafNode> q_leafs = new ArrayList<>();
-
-                    int p = 0;
-                    if (node == null) {
-                        return " ";
-                    }
-                    
-                    q.add(node);
-                    while (!q.isEmpty()) {
-                        p++;
-                        InnerNode curr = (InnerNode)q.pollLast();
-                        if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
-                            InnerNode leftChild = (InnerNode)curr.getLeftChild();
-                            InnerNode rightChild = (InnerNode)curr.getRightChild();
-                            writer.write(Integer.toString(p));
-                            writer.newLine();
-                            writer.write(Integer.toString((2*p)));
-                            writer.newLine();
-                            writer.write(curr.getLeftChildLabel());
-                            writer.newLine();
-                            writer.write(curr.getLeftChildLabel());
-                            writer.newLine();
-                            writer.write(curr.getSHAString());
-                            writer.newLine();
-                            writer.write(curr.getRightChildLabel());
-                            writer.newLine();
-                            writer.write(Integer.toString((2*p+1)));
-                            writer.newLine();
-                            writer.newLine();
-                            q.addFirst((InnerNode)curr.getLeftChild());
-                            q.addFirst((InnerNode)curr.getRightChild());
-                        } else {
-                            LeafNode leftChild = (LeafNode)curr.getLeftChild();
-                            LeafNode rightChild = (LeafNode)curr.getRightChild();
-                            writer.write(Integer.toString(p));
-                            writer.newLine();
-                            writer.write(Integer.toString((2*p)));
-                            writer.newLine();
-                            writer.write(curr.getLeftChildLabel());
-                            writer.newLine();
-                            writer.write(curr.getLeftChildLabel());
-                            writer.newLine();
-                            writer.write(curr.getSHAString());
-                            writer.newLine();
-                            writer.write(curr.getRightChildLabel());
-                            writer.newLine();
-                            writer.write(Integer.toString((2*p+1)));
-                            writer.newLine();
-                            writer.newLine();
-                            q_leafs.add((LeafNode)curr.getLeftChild());
-                            q_leafs.add((LeafNode)curr.getRightChild());
-                        }                        
-                    }
-                    for(LeafNode curr: q_leafs){
-                        p++;
-                        writer.write(Integer.toString(p));
-                        writer.newLine();
-                        writer.write(curr.getString());
-                        writer.newLine();
-                        writer.write(curr.getSHAString());
-                        writer.newLine();
-                        writer.newLine();
-                    }
-                    writer.write("END BLOCK");
-                    retString = writer.toString();
-                    writer.close();
+                writer.write("END BLOCK");
+                retString = writer.toString();
+                writer.close();
 
             } catch (IOException e) {
                 System.out.println("An error has occured creating out file.");

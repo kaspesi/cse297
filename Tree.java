@@ -170,6 +170,11 @@ public class Tree implements java.io.Serializable {
             return this.SHA256;
         }
 
+        //Used for testing invalid hash 
+        public void setSHA(byte[] newSHA){
+            this.SHA256 = newSHA;
+        }
+
         public Node getLeftChild(){
             return this.leftChild;
         }
@@ -326,13 +331,23 @@ public class Tree implements java.io.Serializable {
     //If statements in order to cast InnerNode to LeafNode 
     public String printTree(InnerNode node, String fileName){
         String retString = "";
+        boolean justString = false;
+        if(fileName == null){
+            justString = true;
+        }
+
+        StringBuilder outString = new StringBuilder();
         try {
 
             //Generate output file name
-            String[] nameParts = fileName.split("\\.");
-            fileName = nameParts[0] + ".out.txt";
-            fileName = fileName.replace("/", "");
-            PrintWriter out = new PrintWriter(new FileWriter(fileName, true), true);
+            PrintWriter out = null;
+            if(!justString){
+                String[] nameParts = fileName.split("\\.");
+                fileName = nameParts[0] + ".out.txt";
+                fileName = fileName.replace("/", "");
+                out = new PrintWriter(new FileWriter(fileName, true), true);
+            }
+             
         
             LinkedList<InnerNode> q = new LinkedList<>();
             ArrayList<LeafNode> q_leafs = new ArrayList<>();
@@ -350,7 +365,8 @@ public class Tree implements java.io.Serializable {
                     InnerNode rightChild = (InnerNode)curr.getRightChild();
                     String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
                     System.out.println(printStr);
-                    out.write(printStr);
+                    if(!justString) out.write(printStr);
+                    outString.append(printStr);
                     q.addFirst((InnerNode)curr.getLeftChild());
                     q.addFirst((InnerNode)curr.getRightChild());
                     
@@ -360,7 +376,8 @@ public class Tree implements java.io.Serializable {
                     LeafNode rightChild = (LeafNode)curr.getRightChild();
                     String printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
                     System.out.println(printStr);
-                    out.write(printStr);
+                    if(!justString) out.write(printStr);
+                    outString.append(printStr);
                     q_leafs.add((LeafNode)curr.getLeftChild());
                     q_leafs.add((LeafNode)curr.getRightChild());
 
@@ -374,18 +391,21 @@ public class Tree implements java.io.Serializable {
                 String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
 
                 System.out.println(printStr);
-                out.write(printStr);
+                if(!justString) out.write(printStr);
+                outString.append(printStr);
             }
-            retString = out.toString();
-            out.close();
+            if(!justString) {
+                retString = out.toString();
+                out.close();
+            }
 
-            return " ";
+            return outString.toString();
         }
         catch(Exception e){
             e.printStackTrace();
         }
 
-        return retString;
+        return outString.toString();
         
     }
 

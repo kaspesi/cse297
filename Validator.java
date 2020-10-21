@@ -46,9 +46,19 @@ public class Validator implements java.io.Serializable {
         return md.digest(input.getBytes(StandardCharsets.UTF_8));  
     } 
 
+
+    public boolean validateBlockChain(ArrayList<Block> blockChain){
+
+        return true;
+    }
+
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException {
 
         System.out.println("Root hash: " + block.getRootHash());
+        // byte[] blockRootSHA = block.getRootHash();  //Block stored rootHash
+        // byte[] blockTreeRootSha = block.getRootNode().getSHA();  //Hahs value of root node in Merkle Tree
+        // if(!Arrays.equals(blockRootSHA, blockTreeRootSha)) return false;
+
         boolean rootValid = this.checkMerkleRoot(block.getRootNode());
         return rootValid;
 
@@ -92,6 +102,10 @@ public class Validator implements java.io.Serializable {
         if(root.getLeftChild() != null && root.getRightChild() != null){
             byte[] currentSHA = root.getSHA();
             byte[] childrenSHA = getSHAFromNodes(leftChild.getSHA(), rightChild.getSHA());
+            String currSHAStr = new String(currentSHA, StandardCharsets.UTF_8);
+            String childSHAStr = new String(childrenSHA, StandardCharsets.UTF_8);
+            System.out.println("RootSHA: " + currSHAStr);
+            System.out.println("ChildrenSHA: " + childSHAStr);
             return Arrays.equals(currentSHA, childrenSHA) && checkMerkleRootHelper(leftChild) && checkMerkleRootHelper(leftChild);
         }
         return false;
@@ -120,7 +134,7 @@ public class Validator implements java.io.Serializable {
         System.out.println("Generating Bad Blockchain\n");
         for (int i = 0; i < BadBlockChain.size();i++){
             System.out.println("Old Hash: " + BadBlockChain.get(i).getRootHash());
-            BadBlockChain.get(i).setHash(s);
+            BadBlockChain.get(i).setRootHash(s+i);
             System.out.println("New Hash: " + BadBlockChain.get(i).getRootHash());
         }
         System.out.println();
@@ -146,23 +160,17 @@ public class Validator implements java.io.Serializable {
             List<List<String>> blockInfo = b.getTransactions(b);
             for(List<String> stringAndHash: blockInfo){
                 map.put(stringAndHash.get(0), b);
-                System.out.println(stringAndHash.get(0)+ "  -->  " + b.getRootHash());
+                //System.out.println(stringAndHash.get(0)+ "  -->  " + b.getRootHash());
             }
         }
 
         // map.forEach((key, value) -> { 
         //     System.out.println(value.getRootHash());
         // });
-        // for (String str: map.keySet()){
-        //     System.out.println("TEST");
-        //     String key = str.toString();
-        //     String value = map.get(str).toString();  
-        //     System.out.println(key + " " + value);  
-        //     System.out.println("TEST");
-        // } 
-
         return map;
     }
+
+    
 
 
 
@@ -191,7 +199,6 @@ public class Validator implements java.io.Serializable {
                 System.out.println();
             }
             System.out.println();
-            String string  = "T7SCG4jK0PbC7iwB7oVe";
             ArrayList<Block> badBlockchain = new ArrayList<Block>();
             badBlockchain = (ArrayList<Block>)blocks.clone();
 
@@ -206,7 +213,7 @@ public class Validator implements java.io.Serializable {
             e.printStackTrace();
         }
 
-
+        validate.validateBlockChain(blocks);
         validate.generateIndexStructure(blocks);
 
     }
