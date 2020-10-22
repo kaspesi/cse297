@@ -396,6 +396,7 @@ public class Tree implements java.io.Serializable {
 
         }
 
+
     //Traverses search itteratively with BFS to get nodes in print order 
     //If statements in order to cast InnerNode to LeafNode 
     public String printTree(InnerNode node, String fileName){
@@ -420,6 +421,8 @@ public class Tree implements java.io.Serializable {
         
             LinkedList<InnerNode> q = new LinkedList<>();
             ArrayList<LeafNode> q_leafs = new ArrayList<>();
+            HashSet<Integer> emptyNodes = new HashSet<>();
+            int emptyNodesAbove = 0;
             int p = 0;
             if (node == null) {
                 return " ";
@@ -427,6 +430,15 @@ public class Tree implements java.io.Serializable {
             q.add(node);
             while (!q.isEmpty()) {
                 p++;
+                if(emptyNodes.contains(p)) {
+                    String printStr = "";
+                    printStr = Integer.toString(p)+ "\nEmpty Node\n\n";
+                    System.out.println(printStr);
+                    if(!justString) out.write(printStr);
+                    outString.append(printStr);
+                    emptyNodesAbove++;
+                    continue;
+                }
                 InnerNode curr = (InnerNode)q.pollLast();
                 if(!curr.getLeftChild().isLeafNode() && !curr.getRightChild().isLeafNode()){
                     boolean rightIsEmpty = false;
@@ -436,10 +448,12 @@ public class Tree implements java.io.Serializable {
                     String printStr = "";
                     if(!rightIsEmpty) {
                         rightChild = (InnerNode)curr.getRightChild();
-                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p - 2*emptyNodesAbove)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1-2*emptyNodesAbove)) + "\n\n";
                     } else {
-                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p-2*emptyNodesAbove)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" +  "Empty Node Label" + "\n" + Integer.toString((2*p+1 - 2*emptyNodesAbove)) + "\n\n";
+                        emptyNodes.add(2*p+1 - 2*emptyNodesAbove);
                     }
+                    System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q.addFirst((InnerNode)curr.getLeftChild());
@@ -452,10 +466,12 @@ public class Tree implements java.io.Serializable {
                     String printStr = "";
                     if(!rightIsEmpty){
                         rightChild = (LeafNode)curr.getRightChild();
-                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p - 2*emptyNodesAbove)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + curr.getRightChildLabel() + "\n" + Integer.toString((2*p+1 - 2*emptyNodesAbove)) + "\n\n";
                     } else {
-                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + "Empty Node Label" + "\n" + Integer.toString((2*p+1)) + "\n\n";
+                        printStr = Integer.toString(p)+ "\n"  + Integer.toString((2*p - 2*emptyNodesAbove)) + "\n" + curr.getLeftChildLabel() + "\n" + curr.getSHAString() + "\n" + "Empty Node Label" + "\n" + Integer.toString(2*p+1 - 2*emptyNodesAbove) + "\n\n";
+                        emptyNodes.add(2*p+1 - 2*emptyNodesAbove);
                     }
+                    System.out.println(printStr);
                     if(!justString) out.write(printStr);
                     outString.append(printStr);
                     q_leafs.add((LeafNode)curr.getLeftChild());
@@ -466,10 +482,32 @@ public class Tree implements java.io.Serializable {
 
             for(LeafNode curr: q_leafs){
                 p++;
+                if(emptyNodes.contains(p)) { 
+                    String printStr = "";
+                    printStr = Integer.toString(p)+ "\nEmpty Node\n\n";
+                    System.out.println(printStr);
+                    if(!justString) out.write(printStr);
+                    outString.append(printStr);
+                    p++;
+                }
                 String printStr = Integer.toString(p) + "\n" + curr.getString() + "\n" + curr.getSHAString() + "\n\n";
                 if(!justString) out.write(printStr);
                 outString.append(printStr);
+                System.out.println(printStr);
             }
+            //If the last leaf node is an empty node
+            p++;
+            if(emptyNodes.contains(p)) { 
+                String printStr = "";
+                printStr = Integer.toString(p)+ "\nEmpty Node\n\n";
+                System.out.println(printStr);
+                if(!justString) out.write(printStr);
+                outString.append(printStr);
+                p++;
+            }
+
+
+
             if(!justString) {
                 retString = out.toString();
                 out.close();
@@ -479,7 +517,8 @@ public class Tree implements java.io.Serializable {
         catch(Exception e){
             e.printStackTrace();
         }
-        return outString.toString();
+        //If try catch fails
+        return "";
         
     }
 
